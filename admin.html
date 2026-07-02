@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CHS Admin — BlackPug Data Sync</title>
+<style>
+:root{--forest:#2D4A2D;--pine:#4A6741;--bark:#6B4E2A;--earth:#C49A6C;--cream:#FAF6EE;--white:#FFFFFF;--text-dark:#1A2B1A;--text-mid:#3A4A3A;--text-light:#6A7A6A}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--cream);color:var(--text-dark);min-height:100vh}
+.header{background:linear-gradient(160deg,var(--forest) 0%,var(--pine) 60%,var(--bark) 100%);color:var(--white);padding:16px 20px;display:flex;align-items:center;gap:12px}
+.header img{width:40px;height:40px;object-fit:contain;filter:drop-shadow(0 1px 3px rgba(0,0,0,.4))}
+.header h1{font-size:18px;font-weight:700}
+.header p{font-size:11px;opacity:.7;letter-spacing:.5px}
+.container{max-width:700px;margin:0 auto;padding:20px}
+.card{background:var(--white);border-radius:14px;box-shadow:0 2px 8px rgba(0,0,0,.08);margin-bottom:16px;overflow:hidden}
+.card-header{padding:14px 16px;font-weight:700;font-size:14px;border-bottom:1px solid #eee;display:flex;align-items:center;gap:8px}
+.card-body{padding:16px}
+.drop-zone{border:2px dashed #ccc;border-radius:12px;padding:40px 20px;text-align:center;cursor:pointer;transition:all .2s;background:#fafafa}
+.drop-zone.over{border-color:var(--forest);background:#f0f6f0}
+.drop-zone h3{font-size:16px;margin-bottom:4px;color:var(--forest)}
+.drop-zone p{font-size:12px;color:var(--text-light)}
+.drop-zone input{display:none}
+.status{padding:12px 16px;border-radius:10px;margin-top:12px;font-size:13px;line-height:1.6}
+.status.info{background:#e8f4fd;color:#1a5276}
+.status.success{background:#e8f8f0;color:#1a6b3f}
+.status.error{background:#fde8e8;color:#8b1a1a}
+.progress-bar{width:100%;height:6px;background:#eee;border-radius:3px;overflow:hidden;margin-top:8px}
+.progress-fill{height:100%;background:var(--forest);border-radius:3px;transition:width .3s;width:0}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{text-align:left;padding:8px 10px;background:#f5f5f5;font-weight:700;color:var(--text-mid);border-bottom:2px solid #ddd}
+td{padding:6px 10px;border-bottom:1px solid #f0f0f0}
+.badge{display:inline-block;padding:2px 8px;border-radius:8px;font-size:10px;font-weight:700}
+.badge-green{background:#d4edda;color:#155724}
+.badge-yellow{background:#fff3cd;color:#856404}
+.badge-red{background:#f8d7da;color:#721c24}
+.btn{background:var(--forest);color:white;border:none;padding:10px 20px;border-radius:20px;font-size:13px;font-weight:700;cursor:pointer;margin-top:12px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn:hover:not(:disabled){background:var(--pine)}
+.log{font-family:monospace;font-size:11px;background:#1a2b1a;color:#a8c49a;padding:12px;border-radius:8px;max-height:200px;overflow-y:auto;margin-top:12px;white-space:pre-wrap}
+.hidden{display:none}
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stat-box{background:#f8f9fa;border-radius:10px;padding:12px;text-align:center}
+.stat-num{font-size:24px;font-weight:800;color:var(--forest)}
+.stat-label{font-size:11px;color:var(--text-light);margin-top:2px}
+.session-row td:first-child{font-weight:700}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <img src="CHS_cutedge_logo.png" alt="CHS">
+  <div>
+    <h1>CHS Admin Console</h1>
+    <p>BlackPug Data Sync &rarr; Firestore</p>
+  </div>
+</div>
+
+<!-- Admin content -->
+<div class="container" id="adminContent">
+
+  <!-- Upload card -->
+  <div class="card">
+    <div class="card-header">📤 Upload BlackPug Data Dump</div>
+    <div class="card-body">
+      <div class="drop-zone" id="dropZone">
+        <h3>Drop Event_Data_Dump CSV here</h3>
+        <p>or click to browse — supports CHS and EAC exports</p>
+        <input type="file" id="fileInput" accept=".csv" multiple>
+      </div>
+      <div id="parseStatus"></div>
+      <div class="progress-bar" id="progressBar" style="display:none">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Preview card (shown after CSV parsed) -->
+  <div class="card hidden" id="previewCard">
+    <div class="card-header">📊 Data Preview</div>
+    <div class="card-body">
+      <div class="stats-grid" id="statsGrid"></div>
+      <div style="margin-top:16px">
+        <table id="sessionTable">
+          <thead><tr><th>Session</th><th>Youth</th><th>Units</th><th>Avg CampDoc</th><th>Balance Due</th></tr></thead>
+          <tbody id="sessionTbody"></tbody>
+        </table>
+      </div>
+      <button class="btn" id="pushBtn" onclick="pushToFirestore()">🚀 Push to Firestore</button>
+      <div id="pushStatus"></div>
+      <div class="log hidden" id="pushLog"></div>
+    </div>
+  </div>
+
+  <!-- Class Schedule Upload -->
+  <div class="card">
+    <div class="card-header">📅 Upload Class Schedule (myEventClassData)</div>
+    <div class="card-body">
+      <p style="font-size:13px;color:var(--text-mid);margin-bottom:12px">Upload the <strong>myEventClassData</strong> CSV from BlackPug to add actual block-by-block class assignments to each scout's roster record.</p>
+      <div class="drop-zone" id="classDropZone">
+        <h3>Drop myEventClassData CSV here</h3>
+        <p>or click to browse — must include Block 1–6 columns</p>
+        <input type="file" id="classFileInput" accept=".csv">
+      </div>
+      <div id="classParseStatus"></div>
+      <div class="progress-bar" id="classProgressBar" style="display:none">
+        <div class="progress-fill" id="classProgressFill"></div>
+      </div>
+      <div class="card hidden" id="classPreviewCard" style="margin-top:12px;box-shadow:none;border:1px solid #eee">
+        <div class="card-header" style="font-size:13px">📊 Class Data Preview</div>
+        <div class="card-body">
+          <div class="stats-grid" id="classStatsGrid"></div>
+          <button class="btn" id="classPushBtn" onclick="pushClassDataToFirestore()" style="margin-top:10px">🚀 Push Class Assignments to Firestore</button>
+          <div id="classPushStatus"></div>
+          <div class="log hidden" id="classPushLog"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Last sync info -->
+  <div class="card">
+    <div class="card-header">🕐 Sync History</div>
+    <div class="card-body" id="syncHistory">
+      <p style="color:var(--text-light);font-size:13px">Loading sync history...</p>
+    </div>
+  </div>
+
+  <!-- Quick links -->
+  <div class="card">
+    <div class="card-header">🔗 Quick Links</div>
+    <div class="card-body" style="display:flex;flex-wrap:wrap;gap:8px">
+      <a href="https://camphisierraapp.web.app" target="_blank" class="btn" style="text-decoration:none;font-size:12px">🏕️ Camper App</a>
+      <a href="https://console.firebase.google.com/project/camphisierraapp" target="_blank" class="btn" style="text-decoration:none;font-size:12px;background:var(--bark)">🔥 Firebase Console</a>
+      <a href="https://svmbc.scoutingevent.com" target="_blank" class="btn" style="text-decoration:none;font-size:12px;background:#2c3e50">🐾 BlackPug</a>
+    </div>
+  </div>
+
+</div>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+// ═══════════════════════════════════════════════════════════
+// FIREBASE CONFIG (same project as camper app)
+// ═══════════════════════════════════════════════════════════
+const firebaseConfig = {
+  apiKey: "AIzaSyA1KBiMYNmGx6oCe_iBFQiirPF5jJmoCXk",
+  authDomain: "camphisierraapp.firebaseapp.com",
+  projectId: "camphisierraapp",
+  storageBucket: "camphisierraapp.firebasestorage.app",
+  messagingSenderId: "96957926656",
+  appId: "1:96957926656:web:5c86b9a2d40d91497937e5"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+// Load sync history on page open
+window.addEventListener('DOMContentLoaded', loadSyncHistory);
+
+// ═══════════════════════════════════════════════════════════
+// CSV PARSING
+// ═══════════════════════════════════════════════════════════
+
+// Session name → Firestore key mapping
+const SESSION_MAP = {
+  'Week 1':'Week_1','Week 2':'Eagle_Achievement_Camp','Week 3':'Week_3',
+  'Week 4':'Week_4','Week 5':'Week_5','Week 6':'Week_6',
+  'Eagle Achievement Camp':'Eagle_Achievement_Camp',
+  '2026 Venturing Camp':'Venturing_Camp','Venturing Camp':'Venturing_Camp'
+};
+
+// ── MB name normalization ────────────────────────────────────────────────────
+// Normalizes a single badge name string to its catalog form.
+function normalizeMB(name){
+  if(!name)return null;
+  let n=name.trim();
+  if(!n||n==='N/A')return null;
+  // Strip "(YYYY version)" suffixes from BlackPug exports
+  n=n.replace(/\s*\(\d{4} version\)\s*/gi,' ').trim();
+  // Strip day-schedule suffixes from myEventClassData: (MoTuWeTh), (TuTh), etc.
+  n=n.replace(/\s*\([A-Za-z]{2,10}\)\s*$/,'').trim();
+  // Strip "(no badge)" — activity offered, no merit badge awarded
+  n=n.replace(/\s*\(no badge\)\s*/gi,'').trim();
+  // Strip "(2 Session)"
+  n=n.replace(/\s*\(2 Session\)\s*/i,'').trim();
+  // Strip qualify variants: "- Qualify 3", "-Qualify 6"
+  n=n.replace(/\s*-\s*qualify\s*\d+\s*/i,'').trim();
+  // Strip morning/afternoon time variants: "- Afternoon", "- Morning"
+  n=n.replace(/\s*-\s*(afternoon|morning)\s*/i,'').trim();
+  if(!n)return null;
+  // ── Name fixes: map BlackPug names → catalog names ──
+  n=n.replace(/backpacking\s*[&\/]\s*hiking/i,'Hiking / Backpacking');
+  n=n.replace(/hiking\s*[&\/]\s*backpacking/i,'Hiking / Backpacking');
+  n=n.replace(/game design and chess/i,'Game Design + Chess');
+  n=n.replace(/mammal study\s*[\/]\s*fish and wildlife management/i,'Mammal Study + Fish & Wildlife');
+  n=n.replace(/^metalwork$/i,'Metalwork / Forging');
+  n=n.replace(/small-boat sailing/i,'Small Boat Sailing');
+  n=n.replace(/^wood carving$/i,'Woodcarving');
+  n=n.replace(/substain\w+/i,'Sustainability');
+  n=n.replace(/citizenship in the society/i,'Citizenship in Society (DISCONTINUED)');
+  n=n.replace(/^communications$/i,'Communication');
+  return n.trim()||null;
+}
+
+// Combined-class map: raw cell value (after version-stripping) → catalog name.
+// These are single class offerings that cover two badge topics — do NOT split them.
+const COMBINED_MB_MAP = {
+  'Cycling, Multisport':                            'Cycling + Multisport',
+  'Multisport, Cycling':                            'Cycling + Multisport',
+  'Backpacking & Hiking':                           'Hiking / Backpacking',
+  'Hiking & Backpacking':                           'Hiking / Backpacking',
+  'Geology & Soil and Water Conservation':          'Soil & Water + Geology',
+  'American Heritage / Scouting Heritage':          'Scouting / American Heritage',
+  'Scouting Heritage / American Heritage':          'Scouting / American Heritage',
+  'Entrepreneurship / Salesmanship':                'Salesmanship / Entrepreneurship',
+  'Salesmanship / Entrepreneurship':                'Salesmanship / Entrepreneurship',
+};
+
+// Extracts one or more normalized badge names from a single Block cell value.
+// Handles: version stripping, combined-class detection, comma-separated multi-badge cells.
+function extractMBsFromCell(raw){
+  if(!raw)return[];
+  // Step 1 — strip version suffixes from the whole string before any splitting
+  let s=raw.trim()
+    .replace(/\s*\(\d{4} version\)\s*/gi,' ')
+    .replace(/\s*\([A-Za-z]{2,10}\)\s*$/,'')  // trailing day pattern
+    .replace(/\s+/g,' ').trim();
+  if(!s)return[];
+  // Step 2 — check combined-class map (these look like two badges but are one class)
+  if(COMBINED_MB_MAP[s])return[COMBINED_MB_MAP[s]];
+  // Step 3 — split on ", " for multi-badge cells (e.g. "Archery- Qualify 4, Rifle Shooting- Qualify 4")
+  // Guard: if any part starts with "and " or "or " it's part of a badge name, not a separator
+  const parts=s.split(', ');
+  const isNameFragment=p=>(/^(and|or)\s/i).test(p.trim());
+  if(parts.length>1 && !parts.some(isNameFragment)){
+    const result=[];
+    const seen=new Set();
+    for(const part of parts){
+      const mb=normalizeMB(part);
+      if(mb&&!seen.has(mb)){seen.add(mb);result.push(mb);}
+    }
+    return result;
+  }
+  // Step 4 — single badge (or badge name with internal commas like "Signs, Signals, and Codes")
+  const mb=normalizeMB(s);
+  return mb?[mb]:[];
+}
+
+let parsedData = null;
+
+function parseCSV(text){
+  // Simple RFC 4180 CSV parser
+  const rows=[];let row=[];let cell='';let inQuote=false;
+  for(let i=0;i<text.length;i++){
+    const c=text[i];
+    if(inQuote){
+      if(c==='"'&&text[i+1]==='"'){cell+='"';i++;}
+      else if(c==='"'){inQuote=false;}
+      else{cell+=c;}
+    }else{
+      if(c==='"'){inQuote=true;}
+      else if(c===','){row.push(cell);cell='';}
+      else if(c==='\n'||(c==='\r'&&text[i+1]==='\n')){
+        row.push(cell);cell='';rows.push(row);row=[];
+        if(c==='\r')i++;
+      }else{cell+=c;}
+    }
+  }
+  if(cell||row.length)row.push(cell);
+  if(row.length)rows.push(row);
+  // Convert to array of objects
+  const headers=rows[0];
+  return rows.slice(1).map(r=>{
+    const obj={};
+    headers.forEach((h,i)=>obj[h]=r[i]||'');
+    return obj;
+  });
+}
+
+function processBlackPugCSV(rows, filename){
+  const isEAC = filename.toLowerCase().includes('eagle');
+  const sessions = {};
+
+  // Identify MB selection columns
+  const mbCols = Object.keys(rows[0]||{}).filter(k=>
+    k.startsWith('x1st Merit')||k.startsWith('x2nd Merit')||k.startsWith('x3rd Merit')||
+    k.startsWith('x4th Merit')||k.startsWith('x5th Merit')||k.startsWith('x6th Merit')||
+    k.startsWith('Merit Badge Class Selection')||
+    ['Block 1','Block 2','Block 3','Block 4','Block 5','Block 6','Drop-In'].includes(k));
+
+  // Identify checkbox-style MB columns (EAC format)
+  const mbCheckboxCols = Object.keys(rows[0]||{}).filter(k=>
+    k.startsWith('Merit Badge Class List'));
+
+  for(const row of rows){
+    const rtype = row['Registrant Type']||'';
+    const isYouth = /Youth|CIT|SPL/i.test(rtype);
+    const isAdult = /Adult/i.test(rtype);
+    const isRegContact = /Registration Contact/i.test(rtype);
+    const cancelled = (row['Cancelled']||'').toLowerCase()==='yes';
+    const fn = (row['First Name']||'').trim();
+    if(!fn || cancelled) continue;
+
+    const sessName = (row['Session']||'').trim();
+    const eventName = (row['Event']||'').trim();
+    const sessKey = SESSION_MAP[sessName] || (sessName ? sessName.replace(/\s+/g,'_') : SESSION_MAP[eventName] || eventName.replace(/\s+/g,'_') || 'Unknown_Session');
+    if(!sessions[sessKey]) sessions[sessKey] = {
+      name: sessName, key: sessKey, youth:[], adults:[], units: new Set(),
+      totalBalance:0, campdocScores:[], mbDemand:{}, unitYouthCount:{}
+    };
+    const s = sessions[sessKey];
+
+    const unit = (row['Unit']||'').trim();
+    if(unit) s.units.add(unit);
+
+    if(isYouth){
+      // Extract per-scout MB selections (Block 1-6 columns + EAC checkbox columns)
+      const scoutMBList = [];
+      const seenMBs = new Set();
+      for(const col of mbCols){
+        for(const mb of extractMBsFromCell(row[col]||'')){
+          if(!seenMBs.has(mb)){seenMBs.add(mb);scoutMBList.push(mb);s.mbDemand[mb]=(s.mbDemand[mb]||0)+1;}
+        }
+      }
+      for(const col of mbCheckboxCols){
+        if(row[col]==='1'){
+          const match = col.match(/- ([^-]+)(?:\s*-\s*\d+ Period)?$/);
+          if(match){
+            const mb = normalizeMB(match[1]);
+            if(mb && !seenMBs.has(mb)){seenMBs.add(mb);scoutMBList.push(mb);s.mbDemand[mb]=(s.mbDemand[mb]||0)+1;}
+          }
+        }
+      }
+
+      const person = {
+        name: fn + ' ' + (row['Last Name']||'').trim(),
+        unit: unit,
+        campsite: (row['Campsite']||'').trim(),
+        campdoc: (row['CampDoc Completeness']||'').replace('%','').trim(),
+        balance: parseFloat((row['Balance Due']||'0').replace(',',''))||0,
+        rank: (row['Scouting Rank']||'').trim(),
+        dietary: (row['Dietary Request']||'').trim(),
+        memberId: (row['Member ID']||'').trim(),
+        mbs: scoutMBList
+      };
+      s.youth.push(person);
+      s.totalBalance += person.balance;
+      if(person.campdoc) {
+        const cd = parseFloat(person.campdoc);
+        if(!isNaN(cd)) s.campdocScores.push(cd);
+      }
+      // Count youth per unit
+      if(unit){s.unitYouthCount[unit]=(s.unitYouthCount[unit]||0)+1;}
+    } else if(isAdult){
+      s.adults.push({
+        name: fn + ' ' + (row['Last Name']||'').trim(),
+        unit: unit
+      });
+    }
+  }
+
+  // Convert Sets to arrays for JSON
+  for(const s of Object.values(sessions)){
+    s.units = Array.from(s.units);
+    s.avgCampdoc = s.campdocScores.length ? Math.round(s.campdocScores.reduce((a,b)=>a+b,0)/s.campdocScores.length) : 0;
+  }
+
+  return sessions;
+}
+
+// ═══════════════════════════════════════════════════════════
+// FILE HANDLING
+// ═══════════════════════════════════════════════════════════
+const dropZone = document.getElementById('dropZone');
+const fileInput = document.getElementById('fileInput');
+
+dropZone.addEventListener('click', ()=>fileInput.click());
+dropZone.addEventListener('dragover', e=>{e.preventDefault();dropZone.classList.add('over');});
+dropZone.addEventListener('dragleave', ()=>dropZone.classList.remove('over'));
+dropZone.addEventListener('drop', e=>{
+  e.preventDefault();dropZone.classList.remove('over');
+  handleFiles(e.dataTransfer.files);
+});
+fileInput.addEventListener('change', e=>handleFiles(e.target.files));
+
+function handleFiles(files){
+  const csvFiles = Array.from(files).filter(f=>f.name.endsWith('.csv'));
+  if(!csvFiles.length){showStatus('parseStatus','Please drop a .csv file','error');return;}
+
+  showStatus('parseStatus',`Parsing ${csvFiles.length} file(s)...`,'info');
+  parsedData = {};
+
+  let processed = 0;
+  for(const file of csvFiles){
+    const reader = new FileReader();
+    reader.onload = function(e){
+      const rows = parseCSV(e.target.result);
+      const sessions = processBlackPugCSV(rows, file.name);
+      // Merge into parsedData
+      for(const [key, sess] of Object.entries(sessions)){
+        if(parsedData[key]){
+          // Merge youth, adults, units from multiple files
+          parsedData[key].youth.push(...sess.youth);
+          parsedData[key].adults.push(...sess.adults);
+          sess.units.forEach(u=>{ if(!parsedData[key].units.includes(u)) parsedData[key].units.push(u); });
+          parsedData[key].totalBalance += sess.totalBalance;
+          parsedData[key].campdocScores.push(...sess.campdocScores);
+          for(const [mb,ct] of Object.entries(sess.mbDemand)){
+            parsedData[key].mbDemand[mb] = (parsedData[key].mbDemand[mb]||0)+ct;
+          }
+          for(const [u,ct] of Object.entries(sess.unitYouthCount)){
+            parsedData[key].unitYouthCount[u] = (parsedData[key].unitYouthCount[u]||0)+ct;
+          }
+          parsedData[key].avgCampdoc = parsedData[key].campdocScores.length ?
+            Math.round(parsedData[key].campdocScores.reduce((a,b)=>a+b,0)/parsedData[key].campdocScores.length) : 0;
+        } else {
+          parsedData[key] = sess;
+        }
+      }
+      processed++;
+      if(processed === csvFiles.length){
+        showPreview();
+      }
+    };
+    reader.readAsText(file);
+  }
+}
+
+function showPreview(){
+  const sessKeys = Object.keys(parsedData).sort();
+  let totalYouth=0, totalUnits=new Set(), totalBalance=0;
+  sessKeys.forEach(k=>{
+    const s=parsedData[k];
+    totalYouth+=s.youth.length;
+    s.units.forEach(u=>totalUnits.add(u));
+    totalBalance+=s.totalBalance;
+  });
+
+  document.getElementById('statsGrid').innerHTML=`
+    <div class="stat-box"><div class="stat-num">${totalYouth}</div><div class="stat-label">Total Youth</div></div>
+    <div class="stat-box"><div class="stat-num">${totalUnits.size}</div><div class="stat-label">Unique Units</div></div>
+    <div class="stat-box"><div class="stat-num">$${Math.round(totalBalance).toLocaleString()}</div><div class="stat-label">Total Balance Due</div></div>
+    <div class="stat-box"><div class="stat-num">${sessKeys.length}</div><div class="stat-label">Sessions</div></div>
+  `;
+
+  const tbody = document.getElementById('sessionTbody');
+  tbody.innerHTML = sessKeys.map(k=>{
+    const s=parsedData[k];
+    const cdClass = s.avgCampdoc>=80?'badge-green':s.avgCampdoc>=50?'badge-yellow':'badge-red';
+    return `<tr class="session-row">
+      <td>${s.name}</td>
+      <td>${s.youth.length}</td>
+      <td>${s.units.length}</td>
+      <td><span class="badge ${cdClass}">${s.avgCampdoc}%</span></td>
+      <td>$${Math.round(s.totalBalance).toLocaleString()}</td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('previewCard').classList.remove('hidden');
+  showStatus('parseStatus',`Parsed ${totalYouth} youth across ${sessKeys.length} sessions. Ready to push.`,'success');
+}
+
+// ═══════════════════════════════════════════════════════════
+// FIRESTORE PUSH
+// ═══════════════════════════════════════════════════════════
+async function pushToFirestore(){
+  if(!parsedData) return;
+  const btn = document.getElementById('pushBtn');
+  btn.disabled = true;
+  btn.textContent = '⏳ Pushing...';
+
+  const logEl = document.getElementById('pushLog');
+  logEl.classList.remove('hidden');
+  logEl.textContent = '';
+  const log = msg => { logEl.textContent += msg + '\n'; logEl.scrollTop = logEl.scrollHeight; };
+
+  const bar = document.getElementById('progressBar');
+  const fill = document.getElementById('progressFill');
+  bar.style.display = 'block';
+
+  const sessKeys = Object.keys(parsedData);
+  let done = 0;
+  const total = sessKeys.length;
+
+  try {
+    for(const sessKey of sessKeys){
+      const s = parsedData[sessKey];
+      const ref = db.collection('sessions').doc(sessKey);
+      log(`[${sessKey}] Writing session metadata...`);
+
+      // 1. Session metadata
+      await ref.set({
+        name: s.name,
+        youthCount: s.youth.length,
+        adultCount: s.adults.length,
+        unitCount: s.units.length,
+        units: s.units,
+        avgCampdoc: s.avgCampdoc,
+        totalBalance: Math.round(s.totalBalance * 100) / 100,
+        lastSync: Date.now()
+      }, { merge: true });
+
+      // 2. Roster (youth) — batch write
+      log(`[${sessKey}] Writing ${s.youth.length} youth roster entries...`);
+      const rosterRef = ref.collection('roster');
+      // Clear existing roster first
+      const existingRoster = await rosterRef.get();
+      const deleteBatch = db.batch();
+      existingRoster.forEach(doc => deleteBatch.delete(doc.ref));
+      if(!existingRoster.empty) await deleteBatch.commit();
+
+      // Write in batches of 400 (Firestore limit is 500)
+      for(let i=0; i<s.youth.length; i+=400){
+        const batch = db.batch();
+        const chunk = s.youth.slice(i, i+400);
+        for(const person of chunk){
+          const docRef = rosterRef.doc();
+          batch.set(docRef, {
+            name: person.name,
+            unit: person.unit,
+            campsite: person.campsite,
+            campdoc: person.campdoc,
+            balance: person.balance,
+            rank: person.rank,
+            dietary: person.dietary,
+            memberId: person.memberId,
+            mbs: person.mbs || []
+          });
+        }
+        await batch.commit();
+        log(`  Wrote roster batch ${Math.floor(i/400)+1}/${Math.ceil(s.youth.length/400)}`);
+      }
+
+      // 3. MB demand (update spotsRemaining is tricky without knowing capacity,
+      //    but we can write demand data that the app can use)
+      if(Object.keys(s.mbDemand).length > 0){
+        log(`[${sessKey}] Writing MB demand (${Object.keys(s.mbDemand).length} badges)...`);
+        await ref.collection('mbDemand').doc('current').set({
+          demand: s.mbDemand,
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+      }
+
+      // 4. Unit breakdown
+      log(`[${sessKey}] Writing unit breakdown...`);
+      await ref.collection('unitBreakdown').doc('current').set({
+        units: s.unitYouthCount,
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+
+      done++;
+      fill.style.width = Math.round((done/total)*100) + '%';
+      log(`[${sessKey}] ✓ Complete\n`);
+    }
+
+    // 5. Write sync history
+    await db.collection('syncHistory').add({
+      timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+      sessions: sessKeys,
+      totalYouth: sessKeys.reduce((sum,k)=>sum+parsedData[k].youth.length,0),
+      totalUnits: [...new Set(sessKeys.flatMap(k=>parsedData[k].units))].length
+    });
+
+    log('════════════════════════════════════');
+    log('✅ All sessions synced to Firestore!');
+    log('The camper app will update in real-time.');
+    showStatus('pushStatus','All data pushed successfully! The camper app is now live with the latest data.','success');
+    loadSyncHistory();
+
+  } catch(err){
+    log(`❌ Error: ${err.message}`);
+    showStatus('pushStatus','Error: '+err.message,'error');
+  }
+
+  btn.disabled = false;
+  btn.textContent = '🚀 Push to Firestore';
+}
+
+// ═══════════════════════════════════════════════════════════
+// SYNC HISTORY
+// ═══════════════════════════════════════════════════════════
+async function loadSyncHistory(){
+  try{
+    const snap = await db.collection('syncHistory').orderBy('timestamp','desc').limit(10).get();
+    const el = document.getElementById('syncHistory');
+    if(snap.empty){
+      el.innerHTML='<p style="color:var(--text-light);font-size:13px">No sync history yet. Upload a BlackPug CSV to get started.</p>';
+      return;
+    }
+    el.innerHTML = '<table><thead><tr><th>When</th><th>Youth</th><th>Sessions</th></tr></thead><tbody>' +
+      snap.docs.map(doc=>{
+        const d=doc.data();
+        const ts=d.timestamp?.toDate();
+        const when=ts?ts.toLocaleDateString()+' '+ts.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}):'—';
+        return `<tr><td>${when}</td><td>${d.totalYouth||'—'}</td><td>${(d.sessions||[]).join(', ')}</td></tr>`;
+      }).join('')+
+      '</tbody></table>';
+  }catch(e){
+    document.getElementById('syncHistory').innerHTML='<p style="color:#c0392b">Error loading history: '+e.message+'</p>';
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════════════════════
+function showStatus(elId, msg, type){
+  const el=document.getElementById(elId);
+  el.innerHTML=`<div class="status ${type}">${msg}</div>`;
+}
+
+// ═══════════════════════════════════════════════════════════
+// CLASS SCHEDULE UPLOAD (myEventClassData)
+// ═══════════════════════════════════════════════════════════
+const BLOCK_COLS = ['Block 1','Block 2','Block 3','Block 4','Block 5','Block 6','Drop-In'];
+
+let parsedClassData = null; // { sessKey: [{memberId, name, unit, blocks:{...}}] }
+
+const classDropZone = document.getElementById('classDropZone');
+const classFileInput = document.getElementById('classFileInput');
+classDropZone.addEventListener('click', ()=>classFileInput.click());
+classDropZone.addEventListener('dragover', e=>{e.preventDefault();classDropZone.classList.add('over');});
+classDropZone.addEventListener('dragleave', ()=>classDropZone.classList.remove('over'));
+classDropZone.addEventListener('drop', e=>{e.preventDefault();classDropZone.classList.remove('over');handleClassFile(e.dataTransfer.files[0]);});
+classFileInput.addEventListener('change', e=>handleClassFile(e.target.files[0]));
+
+function handleClassFile(file){
+  if(!file||!file.name.endsWith('.csv')){showStatus('classParseStatus','Please drop a .csv file','error');return;}
+  showStatus('classParseStatus','Parsing class schedule...','info');
+  const reader=new FileReader();
+  reader.onload=function(e){
+    try{
+      const rows=parseCSV(e.target.result);
+      if(!rows.length||!('Block 1' in (rows[0]||{}))){
+        showStatus('classParseStatus','This doesn\'t look like a myEventClassData CSV — missing Block 1 column','error');
+        return;
+      }
+      parsedClassData={};
+      let total=0;
+      for(const row of rows){
+        const fn=(row['First Name']||'').trim();
+        const ln=(row['Last Name']||'').trim();
+        if(!fn)continue;
+        const sessName=(row['Session']||'').trim();
+        const sessKey=SESSION_MAP[sessName]||sessName.replace(/\s+/g,'_');
+        if(!parsedClassData[sessKey])parsedClassData[sessKey]=[];
+        const blocks={};
+        for(const col of BLOCK_COLS){
+          const raw=(row[col]||'').trim();
+          if(!raw)continue;
+          // Strip "(YYYY version)" and day-schedule "(MoTuWeTh)" patterns for clean display.
+          // Keep Qualify N / Morning / Afternoon

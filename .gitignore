@@ -1,0 +1,24 @@
+# ⚠️ Firebase credentials — NEVER commit this
+serviceAccountKey.json
+
+# Data files (PII — camp registration data, scout names, etc.)
+*.xlsx
+*.csv
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Staff headshots (binary, large)
+headshots_resized/
+
+# LibreOffice lock files
+.~lock.*
+
+# Accidental empty files
+/python
+/cd
+
+# Excel lock file artifacts
+*.xlsx#

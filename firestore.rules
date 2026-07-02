@@ -1,0 +1,8 @@
+// ⚠️ SUPERSEDED — DO NOT DEPLOY THIS FILE.
+//
+// This was an early draft written before I found your real Firebase project.
+// Your authoritative rules live in the deploy folder:
+//     C:\Users\Michael\Documents\camphisierraapp\firestore.rules
+// That file has been edited in place (the /roster read lockdown) and keeps your
+// existing testimonial/photo validation and the leader-only rosters/scouts path.
+// Deploy from there, not here.

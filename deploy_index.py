@@ -77,24 +77,37 @@ def gzip_file(path):
 
 content, sha256 = gzip_file(INDEX_PATH)
 
-# Also deploy sw.js from the same directory as index.html
-SW_PATH = os.path.join(os.path.dirname(INDEX_PATH), 'sw.js')
+# Also deploy sw.js and admin.html from the same directory as index.html
+pub_dir = os.path.dirname(INDEX_PATH)
+SW_PATH = os.path.join(pub_dir, 'sw.js')
 sw_content, sw_sha256 = gzip_file(SW_PATH) if os.path.exists(SW_PATH) else (None, None)
 if sw_content:
     print(f"     Also deploying: {SW_PATH}")
+
+# admin.html lives next to deploy_index.py (CHS app folder), not in public/
+ADMIN_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'admin.html')
+admin_content, admin_sha256 = gzip_file(ADMIN_PATH) if os.path.exists(ADMIN_PATH) else (None, None)
+if admin_content:
+    print(f"     Also deploying: {ADMIN_PATH}")
 
 # ── 3. Populate files ─────────────────────────────────────────────────────────
 print("2/4  Registering files...")
 files_map = {'/index.html': sha256}
 if sw_content:
     files_map['/sw.js'] = sw_sha256
+if admin_content:
+    files_map['/admin.html'] = admin_sha256
 populate_resp = api('POST', f'{BASE}/{version_name}:populateFiles', {'files': files_map})
 
 # Upload any needed files
 required = populate_resp.get('uploadRequiredHashes', [])
 upload_url = populate_resp.get('uploadUrl', '')
 
-uploads = [('/index.html', content, sha256), ('/sw.js', sw_content, sw_sha256)] if sw_content else [('/index.html', content, sha256)]
+uploads = [('/index.html', content, sha256)]
+if sw_content:
+    uploads.append(('/sw.js', sw_content, sw_sha256))
+if admin_content:
+    uploads.append(('/admin.html', admin_content, admin_sha256))
 for name, file_content, file_sha in uploads:
     if file_sha in required and upload_url:
         print(f"3/4  Uploading {name}...")

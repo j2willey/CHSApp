@@ -248,10 +248,21 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .gallery-img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:6px;cursor:pointer}
 .mb-notes{font-size:11px;color:var(--bark);margin-top:4px;line-height:1.4;font-weight:600}
 /* Weather panel */
-.wx-hero{background:var(--white);border-radius:14px;box-shadow:0 2px 10px var(--shadow);padding:20px;margin-bottom:14px;text-align:center}
-.wx-temp{font-size:56px;font-weight:800;color:var(--text-dark);line-height:1}
-.wx-feels{font-size:13px;color:var(--text-light);margin-top:4px}
-.wx-updated{font-size:11px;color:var(--text-light);margin-top:8px;opacity:.7}
+.wx-hero{border-radius:18px;box-shadow:0 8px 32px rgba(0,0,0,.28);margin-bottom:14px;overflow:hidden;position:relative}
+.wx-hero-inner{padding:20px 18px 16px;position:relative;z-index:1}
+.wx-hero-label{font-size:10px;font-weight:800;color:rgba(255,255,255,.65);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px}
+.wx-hero-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+.wx-temp{font-size:76px;font-weight:900;color:#fff;line-height:1;letter-spacing:-3px;text-shadow:0 2px 16px rgba(0,0,0,.2)}
+.wx-temp-unit{font-size:28px;font-weight:700;vertical-align:top;margin-top:14px;display:inline-block;letter-spacing:0}
+.wx-condition-icon{font-size:64px;line-height:1;flex-shrink:0;filter:drop-shadow(0 4px 12px rgba(0,0,0,.25))}
+.wx-feels{font-size:13px;color:rgba(255,255,255,.85);margin-top:6px;font-weight:500}
+.wx-updated{font-size:10px;color:rgba(255,255,255,.5);margin-top:4px}
+.wx-hero-stats{display:flex;margin-top:16px;background:rgba(0,0,0,.2);border-radius:10px;overflow:hidden;backdrop-filter:blur(4px)}
+.wx-hero-stat{flex:1;text-align:center;padding:10px 4px;border-right:1px solid rgba(255,255,255,.1)}
+.wx-hero-stat:last-child{border-right:none}
+.wx-hero-stat-icon{font-size:15px;margin-bottom:1px}
+.wx-hero-stat-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:rgba(255,255,255,.55)}
+.wx-hero-stat-value{font-size:16px;font-weight:800;color:#fff;margin-top:1px}
 .wx-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
 .wx-tile{background:var(--white);border-radius:12px;box-shadow:0 1px 6px var(--shadow);padding:14px}
 .wx-tile-icon{font-size:22px;margin-bottom:4px}
@@ -2583,6 +2594,16 @@ function uvLabel(uv){
   return{text:'Extreme',color:'#9C27B0'};
 }
 
+function wxCondition(temp,uv,rainHr,windGust,solar){
+  if(rainHr!=='--'&&rainHr>0.05)return{emoji:'🌧️',grad:'linear-gradient(160deg,#1565C0 0%,#0D47A1 55%,#455A64 100%)'};
+  if(windGust!=='--'&&windGust>=30)return{emoji:'💨',grad:'linear-gradient(160deg,#37474F 0%,#455A64 55%,#546E7A 100%)'};
+  if(temp==='--')return{emoji:'🌡️',grad:'linear-gradient(160deg,#2D4A2D 0%,#4A6741 100%)'};
+  if(temp<=35)return{emoji:'❄️',grad:'linear-gradient(160deg,#1A237E 0%,#283593 55%,#1565C0 100%)'};
+  if(temp<=50)return{emoji:'🌤️',grad:'linear-gradient(160deg,#0277BD 0%,#0288D1 55%,#01579B 100%)'};
+  if(temp<=70){const sunny=solar!=='--'&&solar>200;return{emoji:sunny?'☀️':'⛅',grad:'linear-gradient(160deg,#2D4A2D 0%,#4A6741 55%,#558B2F 100%)'};}
+  if(temp<=85){const sunny=solar!=='--'&&solar>300;return{emoji:sunny?'☀️':'🌤️',grad:'linear-gradient(160deg,#E65100 0%,#F57C00 55%,#FF8F00 100%)'};}
+  return{emoji:'🔥',grad:'linear-gradient(160deg,#B71C1C 0%,#C62828 55%,#D84315 100%)'};
+}
 function renderWeather(device){
   const d=device.lastData;
   const name=device.info?.name||'Camp Weather Station';
@@ -2614,13 +2635,43 @@ function renderWeather(device){
   if(windGust!=='--'&&windGust>=30) alerts+=`<div class="wx-alert"><div class="wx-alert-icon">💨</div><div><div class="wx-alert-title">High Winds — Gusts to ${windGust} mph</div><div class="wx-alert-msg">Secure tents and loose items. Shooting sports may be affected.</div></div></div>`;
   if(rainHr!=='--'&&rainHr>0) alerts+=`<div class="wx-alert"><div class="wx-alert-icon">🌧️</div><div><div class="wx-alert-title">Rain Detected</div><div class="wx-alert-msg">${rainHr}" in the last hour. Rain gear recommended for outdoor activities.</div></div></div>`;
 
+  const cond=wxCondition(temp,uv,rainHr,windGust,solar);
   const html=`
     ${alerts}
-    <div class="wx-hero">
-      <div style="font-size:11px;font-weight:700;color:var(--text-light);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px">${name}</di
-      <div class="wx-temp">🌡️ ${temp}°</div>
-      <div class="wx-feels">Feels like ${feels}° · Dew point ${dewPt}°</div>
-      <div class="wx-updated">Updated ${dateStr} at ${timeStr}</div>
+    <div class="wx-hero" style="background:${cond.grad}">
+      <div class="wx-hero-inner">
+        <div class="wx-hero-label">${name}</div>
+        <div class="wx-hero-top">
+          <div>
+            <div class="wx-temp">${temp}<span class="wx-temp-unit">°F</span></div>
+            <div class="wx-feels">Feels like ${feels}° &middot; Dew point ${dewPt}°</div>
+            <div class="wx-updated">Updated ${dateStr} at ${timeStr}</div>
+          </div>
+          <div class="wx-condition-icon">${cond.emoji}</div>
+        </div>
+        <div class="wx-hero-stats">
+          <div class="wx-hero-stat">
+            <div class="wx-hero-stat-icon">💧</div>
+            <div class="wx-hero-stat-label">Humidity</div>
+            <div class="wx-hero-stat-value">${humidity}%</div>
+          </div>
+          <div class="wx-hero-stat">
+            <div class="wx-hero-stat-icon">💨</div>
+            <div class="wx-hero-stat-label">Wind</div>
+            <div class="wx-hero-stat-value">${windSpd} mph</div>
+          </div>
+          <div class="wx-hero-stat">
+            <div class="wx-hero-stat-icon">☀️</div>
+            <div class="wx-hero-stat-label">UV Index</div>
+            <div class="wx-hero-stat-value">${uv}</div>
+          </div>
+          <div class="wx-hero-stat">
+            <div class="wx-hero-stat-icon">🌡️</div>
+            <div class="wx-hero-stat-label">Pressure</div>
+            <div class="wx-hero-stat-value">${pressure}"</div>
+          </div>
+        </div>
+      </div>
     </div>
     <div class="wx-grid">
       <div class="wx-tile">
@@ -2684,79 +2735,4 @@ function renderWeather(device){
   }
   #hs-lightbox.open { display: flex; }
   #hs-lightbox img {
-    width: min(320px, 80vw); height: min(320px, 80vw); border-radius: 50%;
-    object-fit: cover; object-position: center top;
-    border: 4px solid #fff; box-shadow: 0 8px 32px rgba(0,0,0,0.5);
-  }
-  #hs-lightbox-name { color: #fff; font-size: 20px; font-weight: 700; text-align: center; }
-  #hs-lightbox-role { color: rgba(255,255,255,0.75); font-size: 14px; text-align: center; margin-top: -8px; }
-</style>
-<div id="hs-lightbox" onclick="this.classList.remove('open')">
-  <img id="hs-lightbox-img" src="" alt="">
-  <div id="hs-lightbox-name"></div>
-  <div id="hs-lightbox-role"></div>
-</div>
-<script>
-(function() {
-  function openLightbox(url, name, role) {
-    document.getElementById('hs-lightbox-img').src = url;
-    document.getElementById('hs-lightbox-name').textContent = name || '';
-    document.getElementById('hs-lightbox-role').textContent = role || '';
-    document.getElementById('hs-lightbox').classList.add('open');
-  }
-  // Inline abbrev — shortName() lives in a different scope and isn't accessible here
-  function abbrevName(full) {
-    if (!full) return '';
-    const parts = String(full).trim().split(/\s+/);
-    if (parts.length < 2) return parts[0] || '';
-    const last = parts[parts.length - 1];
-    return parts.slice(0, -1).join(' ') + ' ' + last.charAt(0).toUpperCase() + '.';
-  }
-  function applyPhotos() {
-    if (typeof STAFF === 'undefined') return;
-    const byInitials = {};
-    const byName = {};
-    STAFF.forEach(s => {
-      if (!s.photo) return;
-      if (s.i)    byInitials[s.i] = s;
-      if (s.name) byName[abbrevName(s.name)] = s; // "Matthew L." and "Miguel L." are distinct
-    });
-    document.querySelectorAll('.org-leader-avatar, .org-mem-avatar, .staff-avatar').forEach(el => {
-      if (el.querySelector('img')) return;
-      const initials = el.textContent.trim();
-      // Prefer name-based lookup — immune to initials collisions (e.g. ML = Matthew L. vs Miguel L.)
-      const nameEl = el.closest('.org-leader')?.querySelector('.org-leader-name')
-                  ?? el.closest('.org-member')?.querySelector('.org-mem-name')
-                  ?? el.parentElement?.querySelector('.staff-name');
-      const s = (nameEl && byName[nameEl.textContent.trim()]) || byInitials[initials];
-      if (!s) return;
-      el.classList.add('has-photo');
-      const img = document.createElement('img');
-      img.src = s.photo;
-      img.alt = s.name || initials;
-      img.onerror = function() { el.classList.remove('has-photo'); el.innerHTML = initials; };
-      img.onclick = function(e) {
-        e.stopPropagation();
-        const parts = (s.name || '').trim().split(/\s+/);
-        const display = s.area === 'Management'
-          ? s.name
-          : parts.length > 1 ? parts[0] + ' ' + parts[parts.length - 1][0] + '.' : s.name;
-        openLightbox(s.photo, display, s.role);
-      };
-      el.innerHTML = '';
-      el.appendChild(img);
-    });
-  }
-  function patchRenderFn(name) {
-    if (typeof window[name] !== 'function') return;
-    const orig = window[name];
-    window[name] = function(...args) { const r = orig.apply(this, args); requestAnimationFrame(applyPhotos); return r; };
-  }
-  function init() {
-    patchRenderFn('renderStaff');
-    patchRenderFn('renderStaffOrg');
-    patchRenderFn('filterStaff');
-    applyPhotos();
-  }
-  document.readyState === 'loading'
-    ? document.addEventListener('DOMContentLoa
+    width: min(320px, 80vw); height: min(320px, 80vw); border-radius: 

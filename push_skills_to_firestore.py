@@ -1,12 +1,13 @@
 """
 push_skills_to_firestore.py
-Reads CHS_Open_Program_Skills_of_the_Day.csv and pushes every activity row
-to Firestore under sessions/{session}/skills.
+Reads CHS_Open_Program_Skills_of_the_Day.csv and pushes ONE doc per session/day
+to Firestore under sessions/{session}/skills/{day}.
 
-Each row → one Firestore doc with fields:
-  day, order, area, title, description, icon, location, steps (empty list)
+Each doc has fields:
+  day, title, icon, location, description, steps (list of all activity strings)
 
-Doc IDs are stable: e.g. Mon_01, Mon_02 … so re-runs are idempotent.
+Doc IDs are the day abbreviation ("Mon", "Tue", etc.) so re-runs are idempotent
+and the app's SKILLS.find(s=>s.day===currentDay) lookup works correctly.
 
 Usage:
     python push_skills_to_firestore.py <CSV_path> <serviceAccountKey.json>
@@ -15,35 +16,10 @@ Example:
     python push_skills_to_firestore.py "CHS_Open_Program_Skills_of_the_Day.csv" "%USERPROFILE%\\secrets\\camphisierraapp-deploy-key.json"
 """
 
-import csv, sys, os, re
-from collections import defaultdict
+import csv, sys, os
+from collections import defaultdict, OrderedDict
 
-AREA_ICONS = {
-    "aquatics":           "🏊",
-    "nature":             "🌿",
-    "foxfire":            "🔥",
-    "handicraft":         "🎨",
-    "rifle":              "🎯",
-    "trail to eagle":     "⭐",
-    "climbing":           "🧗",
-    "archery":            "🏹",
-    "scoutcraft":         "🪢",
-    "blackfoot meadow":   "🏕️",
-    "the kiosk":          "🏪",
-    "excursions":         "🚵",
-    "dining hall deck":   "🍽️",
-    "program meadow":     "🌄",
-    "downriver of nature":"🪓",
-    "tbd":                "🗓️",
-}
-
-DAY_ORDER = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"]
-
-
-def icon_for_area(area):
-    if not area:
-        return "📅"
-    return AREA_ICONS.get(area.lower(), "🏕️")
+DAY_ORDER = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
 
 
 def session_doc_id(session_raw):
@@ -51,9 +27,27 @@ def session_doc_id(session_raw):
     return session_raw.strip().replace(" ", "_")
 
 
+def fmt_step(area, activity, description):
+    """Format a single activity into a step string."""
+    if area:
+        step = f"{area}: {activity}"
+        if description:
+            step += f" — {description}"  # em dash
+    else:
+        step = activity
+        if description:
+            step += f" — {description}"
+    return step
+
+
 def parse_csv(csv_path):
-    """Returns {session_doc_id: [row_dict, ...]} sorted by day then order."""
-    sessions = defaultdict(list)
+    """
+    Returns {session_doc_id: OrderedDict{day: {"day":..., "steps":[...]}}}
+    sorted by day then by row order (#).
+    """
+    # Two-level: session -> day -> list of (order, step_string)
+    raw = defaultdict(lambda: defaultdict(list))
+
     with open(csv_path, newline='', encoding='utf-8-sig') as f:
         reader = csv.DictReader(f)
         for row in reader:
@@ -61,7 +55,7 @@ def parse_csv(csv_path):
             day     = row.get("Day", "").strip()
             order   = row.get("#", "").strip()
             area    = row.get("Area", "").strip()
-            activity= row.get("Activity", "").strip()
+            activity = row.get("Activity", "").strip()
             desc    = row.get("Description", "").strip()
 
             if not session or not day or not activity:
@@ -70,25 +64,29 @@ def parse_csv(csv_path):
             try:
                 order_int = int(order)
             except ValueError:
-                order_int = 0
+                order_int = 999
 
-            sessions[session].append({
+            step = fmt_step(area, activity, desc)
+            raw[session][day].append((order_int, step))
+
+    # Build final structure: one doc per session/day
+    result = {}
+    for session_id, days in raw.items():
+        result[session_id] = {}
+        for day, step_list in days.items():
+            # Sort steps by their original order number
+            step_list.sort(key=lambda t: t[0])
+            steps = [s for _, s in step_list]
+            result[session_id][day] = {
                 "day":         day,
-                "order":       order_int,
-                "area":        area,
-                "title":       activity,
-                "description": desc,
-                "icon":        icon_for_area(area),
-                "location":    area if area else "Camp",
-                "steps":       [],
-            })
+                "title":       "Open Program",
+                "icon":        "\U0001f3d5️",  # 🏕️
+                "location":    "All Program Areas",
+                "description": "All areas open this afternoon — visit any activity, no sign-up needed!",
+                "steps":       steps,
+            }
 
-    # Sort each session's list by day then order
-    for session in sessions:
-        sessions[session].sort(
-            key=lambda r: (DAY_ORDER.index(r["day"]) if r["day"] in DAY_ORDER else 99, r["order"])
-        )
-    return sessions
+    return result
 
 
 def push_to_firestore(sessions, service_account_path):
@@ -100,35 +98,33 @@ def push_to_firestore(sessions, service_account_path):
         firebase_admin.initialize_app(cred)
     db = fs.client()
 
-    for session_id, rows in sorted(sessions.items()):
-        print(f"\n{session_id}  ({len(rows)} activities)")
+    for session_id, days in sorted(sessions.items()):
+        print(f"\n{session_id}  ({len(days)} days)")
 
         skills_ref = db.collection("sessions").document(session_id).collection("skills")
 
-        # Delete all existing skill docs first so removed activities don't linger
+        # Delete ALL existing skill docs first (removes stale per-activity docs
+        # like Mon_01, Mon_02 that were written by the old script format)
         existing = list(skills_ref.stream())
         if existing:
             batch = db.batch()
             for doc in existing:
                 batch.delete(doc.reference)
             batch.commit()
-            print(f"  🗑️  Deleted {len(existing)} existing skill docs")
+            print(f"  \U0001f5d1️  Deleted {len(existing)} existing skill docs")
 
-        # Write new docs in batches of 500
+        # Write one doc per day, doc ID = the day abbreviation
         batch = db.batch()
         count = 0
-        for row in rows:
-            doc_id = f"{row['day']}_{row['order']:02d}"
-            batch.set(skills_ref.document(doc_id), row)
+        for day in sorted(days.keys(), key=lambda d: DAY_ORDER.index(d) if d in DAY_ORDER else 99):
+            doc_data = days[day]
+            batch.set(skills_ref.document(day), doc_data)
             count += 1
-            if count % 500 == 0:
-                batch.commit()
-                batch = db.batch()
+            step_count = len(doc_data["steps"])
+            print(f"    {day}: {step_count} activities")
 
-        if count % 500 != 0:
-            batch.commit()
-
-        print(f"  ✅ Wrote {count} skill docs")
+        batch.commit()
+        print(f"  ✅ Wrote {count} day docs")
 
 
 def main():
@@ -148,7 +144,11 @@ def main():
 
     print("Parsing CSV…")
     sessions = parse_csv(csv_path)
-    print(f"  Found {len(sessions)} sessions: {', '.join(sorted(sessions))}")
+    total_days = sum(len(d) for d in sessions.values())
+    print(f"  Found {len(sessions)} sessions, {total_days} session-day combos")
+    for sid in sorted(sessions):
+        days = sorted(sessions[sid].keys(), key=lambda d: DAY_ORDER.index(d) if d in DAY_ORDER else 99)
+        print(f"    {sid}: {', '.join(days)}")
 
     print("\nPushing to Firestore…")
     push_to_firestore(sessions, sa_path)

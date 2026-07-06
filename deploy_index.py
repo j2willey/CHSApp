@@ -90,6 +90,19 @@ admin_content, admin_sha256 = gzip_file(ADMIN_PATH) if os.path.exists(ADMIN_PATH
 if admin_content:
     print(f"     Also deploying: {ADMIN_PATH}")
 
+# assets/ lives in the camphisierraapp/public/assets/ directory
+ASSETS_DIR = r'C:\Users\Michael\Documents\camphisierraapp\public\assets'
+asset_files = {}  # web path → (content, sha256)
+if os.path.isdir(ASSETS_DIR):
+    for fname in os.listdir(ASSETS_DIR):
+        fpath = os.path.join(ASSETS_DIR, fname)
+        if os.path.isfile(fpath):
+            fc, fsha = gzip_file(fpath)
+            asset_files[f'/assets/{fname}'] = (fc, fsha)
+    print(f"     Also deploying: {len(asset_files)} asset(s) from {ASSETS_DIR}")
+else:
+    print(f"     WARNING: assets dir not found at {ASSETS_DIR} — skipping")
+
 # ── 3. Populate files ─────────────────────────────────────────────────────────
 print("2/4  Registering files...")
 files_map = {'/index.html': sha256}
@@ -97,6 +110,8 @@ if sw_content:
     files_map['/sw.js'] = sw_sha256
 if admin_content:
     files_map['/admin.html'] = admin_sha256
+for web_path, (fc, fsha) in asset_files.items():
+    files_map[web_path] = fsha
 populate_resp = api('POST', f'{BASE}/{version_name}:populateFiles', {'files': files_map})
 
 # Upload any needed files
@@ -108,25 +123,12 @@ if sw_content:
     uploads.append(('/sw.js', sw_content, sw_sha256))
 if admin_content:
     uploads.append(('/admin.html', admin_content, admin_sha256))
+for web_path, (fc, fsha) in asset_files.items():
+    uploads.append((web_path, fc, fsha))
 for name, file_content, file_sha in uploads:
     if file_sha in required and upload_url:
         print(f"3/4  Uploading {name}...")
         up_url = f"{upload_url}/{file_sha}"
         up_req = urllib.request.Request(
             up_url, data=file_content,
-            headers={'Authorization': f'Bearer {token}', 'Content-Type': 'application/octet-stream'},
-            method='POST'
-        )
-        with urllib.request.urlopen(up_req) as r:
-            r.read()
-        print(f"     {name} uploaded.")
-    else:
-        print(f"3/4  {name} unchanged — skipping upload.")
-
-# ── 4. Finalize & release ─────────────────────────────────────────────────────
-print("4/4  Finalizing and releasing...")
-api('PATCH', f'{BASE}/{version_name}?update_mask=status', {'status': 'FINALIZED'})
-
-release = api('POST', f'{BASE}/sites/{SITE_ID}/releases?versionName={version_name}')
-print(f"\n✓ Live at https://{SITE_ID}.web.app")
-print(f"  Release: {release.get('name','')}")
+            headers={'Authorization': f'Beare

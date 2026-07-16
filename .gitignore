@@ -1,24 +1,76 @@
-# ⚠️ Firebase credentials — NEVER commit this
+# =============================================================================
+# CHS app .gitignore
+# Goal: source code (index.html, admin.html, *.py, *.js, *.gs, *.md) is tracked.
+# Data files, images, secrets, and backups must NEVER be committed.
+# App assets (PDFs/PNGs) live in camphisierraapp/public/assets, NOT here.
+# =============================================================================
+
+# ---- Firebase / service-account credentials — NEVER commit ----
 serviceAccountKey.json
+*-adminsdk-*.json
+*serviceAccount*.json
+*service-account*.json
+*.key.json
+*-deploy-key.json
+secrets/
+.secrets/
+.env
+.env.*
+!.env.example
 
-# Data files (PII — camp registration data, scout names, etc.)
-*.xlsx
+# ---- Data files (PII: camp registration, scout names, rosters, attendance) ----
 *.csv
+*.tsv
+*.xlsx
+*.xls
+*.xlsm
+*.xltx
+*.xlsx#
 
-# Python
+# ---- Documents / rosters (belong in Firebase, not the repo) ----
+*.pdf
+*.doc
+*.docx
+
+# ---- Images / headshots (binary, large - go to Firebase Storage) ----
+headshots_resized/
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.bmp
+*.tiff
+*.tif
+*.webp
+*.heic
+*.ico
+
+# ---- Backups / corrupted / temp copies ----
+*.bak
+*.backup
+*.corrupted*
+*.orig
+*.tmp
+*~
+
+# ---- Python ----
 __pycache__/
 *.pyc
 *.pyo
+*.pyd
+.venv/
+venv/
 
-# Staff headshots (binary, large)
-headshots_resized/
-
-# LibreOffice lock files
+# ---- Editor / OS clutter ----
 .~lock.*
+.DS_Store
+Thumbs.db
+Desktop.ini
+.vscode/
+.idea/
+*.swp
+*.swo
 
-# Accidental empty files
+# ---- Accidental empty files ----
 /python
 /cd
-
-# Excel lock file artifacts
-*.xlsx#

@@ -412,7 +412,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <div class="card">
       <div class="card-header" style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
         <span>Merit Badge Schedule</span>
-        <span id="mbLastUpdate" style="font-size:11px;font-weight:400;color:#fff;opacity:.9">Last Merit Badge update: —</span>
+
       </div>
       <div class="card-body">
         <div style="display:flex;gap:8px;margin-bottom:12px;justify-content:center;flex-wrap:wrap">
@@ -559,11 +559,51 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
           <a href="/assets/saga-bead-sheet-2026.pdf" download style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);color:#fff;text-decoration:none;font-size:11px;font-weight:700;padding:6px 12px;border-radius:20px">📄 Bead Sheet</a>
           <a href="/assets/saga-ranks-requirements-2026.pdf" download style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);color:#fff;text-decoration:none;font-size:11px;font-weight:700;padding:6px 12px;border-radius:20px">📋 Ranks &amp; Requirements</a>
+          <a href="/assets/saga-seeker-bead-sheet-2026.pdf" download style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);color:#fff;text-decoration:none;font-size:11px;font-weight:700;padding:6px 12px;border-radius:20px">📄 Seeker Bead Sheet</a>
         </div>
       </div>
     </div>
     <div class="skill-nav" id="sagaSubNav"></div>
     <div id="sagaContent" style="margin-top:12px"></div>
+  </div>
+
+  <!-- CAMP RESOURCES -->
+  <div id="panel-resources" class="panel">
+    <div class="card" style="background:linear-gradient(135deg,#5B4A2E 0%,#7A6040 60%,#9C7A50 100%);border:none;margin-bottom:14px">
+      <div style="padding:16px">
+        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.7);margin-bottom:4px">Handouts &amp; References</div>
+        <div style="font-size:17px;font-weight:800;color:#fff;margin-bottom:4px">Camp Resources</div>
+        <div style="font-size:12px;color:rgba(255,255,255,0.82);line-height:1.5">Download or view key camp documents — duty rosters, campsite guides, and more.</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-body">
+        <a href="/assets/campsite-duty-roster.pdf" target="_blank" style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--parchment);text-decoration:none;color:var(--text-dark)">
+          <div style="font-size:28px;flex-shrink:0">📋</div>
+          <div>
+            <div style="font-size:14px;font-weight:600;margin-bottom:2px">Campsite Duty Roster</div>
+            <div style="font-size:12px;color:var(--text-light)">Daily campsite duties and assignments</div>
+          </div>
+          <div style="margin-left:auto;font-size:18px;color:var(--text-light)">›</div>
+        </a>
+        <a href="/assets/steward-duty-roster.pdf" target="_blank" style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--parchment);text-decoration:none;color:var(--text-dark)">
+          <div style="font-size:28px;flex-shrink:0">🍽️</div>
+          <div>
+            <div style="font-size:14px;font-weight:600;margin-bottom:2px">Steward Duty Roster</div>
+            <div style="font-size:12px;color:var(--text-light)">Dining hall steward schedule and responsibilities</div>
+          </div>
+          <div style="margin-left:auto;font-size:18px;color:var(--text-light)">›</div>
+        </a>
+        <a href="/assets/the-perfect-campsite.pdf" target="_blank" style="display:flex;align-items:center;gap:12px;padding:12px 0;text-decoration:none;color:var(--text-dark)">
+          <div style="font-size:28px;flex-shrink:0">⛺</div>
+          <div>
+            <div style="font-size:14px;font-weight:600;margin-bottom:2px">The Perfect Campsite</div>
+            <div style="font-size:12px;color:var(--text-light)">Standards and tips for campsite inspection</div>
+          </div>
+          <div style="margin-left:auto;font-size:18px;color:var(--text-light)">›</div>
+        </a>
+      </div>
+    </div>
   </div>
 
   <!-- WEATHER (powered by Ambient Weather API) -->
@@ -660,6 +700,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <div class="more-item" onclick="moreTab('service')"><div class="more-item-icon">🛠️</div><div class="more-item-label">Service</div></div>
       <div class="more-item" onclick="moreTab('skills')"><div class="more-item-icon">🪢</div><div class="more-item-label">Skills</div></div>
       <div class="more-item" onclick="moreTab('saga')"><div class="more-item-icon">📿</div><div class="more-item-label">SAGA</div></div>
+      <div class="more-item" onclick="moreTab('resources')"><div class="more-item-icon">📁</div><div class="more-item-label">Resources</div></div>
     </div>
   </div>
 </div>
@@ -700,7 +741,7 @@ db.enablePersistence({ synchronizeTabs: true }).catch(err => {
 
 // ─────────────────────────────────────────────────────────────
 // SESSIONS
-// ─────────────────────────────────────────────────────────────
+// ───────────────���─────────────────────────────────────────────
 const SESSIONS = [
   {id:1,name:"Week 1",dates:"June 21 - June 27, 2026",startDate:"2026-06-21",endDate:"2026-06-27",menuCycle:"odd"},
   {id:2,name:"Eagle Achievement Camp",dates:"June 28 - July 4, 2026",startDate:"2026-06-28",endDate:"2026-07-04",menuCycle:"even",type:"eac"},
@@ -715,13 +756,13 @@ const EAGLE_BLOCK_TIMES = {1:'9:00 AM',2:'10:00 AM',3:'11:00 AM',4:'1:30 PM',5:'
 function isEagleSession(){return currentSession && currentSession.type==='eac';}
 function currentBlockTimes(){return isEagleSession()?EAGLE_BLOCK_TIMES:{1:'9:00 AM',2:'10:00 AM',3:'11:00 AM',4:'1:30 PM',5:'2:50 PM',6:'4:10 PM'};}
 
-// ─────────────────────────────────────────────────────────────
+// ───────────────���─────────────────────────────────────────────
 // BUNDLED FALLBACK DATA (used until Firestore delivers)
 // ─────────────────────────────────────────────────────────────
 let SKILLS = [
   {day:"Sun",title:"Camp Orientation Walk",description:"Learn the layout of Camp Hi-Sierra — program areas, health lodge, trading post, and emergency assembly points.",location:"Meet at Administration Building",icon:"🗺️",steps:["Assemble at Administration Building at 4:00 PM","Follow your unit guide to each program area","Identify emergency assembly points","Visit the Health Lodge and Trading Post","Return to campsite for setup"]},
   {day:"Mon",title:"Fire Building",description:"Learn the principles of fire safety, fire lay types, and how to build a proper campfire using the Leave No Trace principles.",location:"Campfire Ring",icon:"🔥",steps:["Review fire safety rules and fire permit requirements","Identify tinder, kindling, and fuel","Build a teepee fire lay","Build a log cabin fire lay","Practice fire lighting techniques","Demonstrate proper fire extinguishing"]},
-  {day:"Tue",title:"Knot Tying",description:"Master the essential knots every Scout needs — square knot, bowline, clove hitch, taut-line hitch, and two half hitches.",location:"Trading Post Porch",icon:"🪢",steps:["Square knot — joining two ropes of equal diameter","Bowline — making a fixed loop","Clove hitch — securing to a post or tree","Taut-line hitch — adjustable tension for tent lines","Two half hitches — tying to a ring or rail","Practice lashing a simple structure"]},
+  {day:"Tue",title:"Knot Tying",description:"Master the essential knots every Scout needs �� square knot, bowline, clove hitch, taut-line hitch, and two half hitches.",location:"Trading Post Porch",icon:"🪢",steps:["Square knot — joining two ropes of equal diameter","Bowline — making a fixed loop","Clove hitch — securing to a post or tree","Taut-line hitch — adjustable tension for tent lines","Two half hitches — tying to a ring or rail","Practice lashing a simple structure"]},
   {day:"Wed",title:"Navigation & Compass",description:"Use a baseplate compass and topographic map to navigate terrain. Learn declination, bearings, and triangulation.",location:"Nature Lodge",icon:"🧭",steps:["Identify compass parts and cardinal directions","Set a bearing from map to compass","Account for magnetic declination","Take a field bearing to a landmark","Pace counting for distance estimation","Complete a short orienteering course"]},
   {day:"Thu",title:"First Aid Basics",description:"Practice the first aid skills every Scout needs in the backcountry — bleeding control, splinting, and patient assessment.",location:"Health Lodge",icon:"⛑️",steps:["Scene safety and patient assessment (ABCDE)","Control bleeding with direct pressure","Treat for shock — position and warmth","Improvise a splint for a suspected fracture","Blister care and blister prevention","When and how to call for help"]},
   {day:"Sat",title:"Leave No Trace",description:"Review the 7 Leave No Trace principles and how to apply them at camp and on the trail.",location:"Nature Lodge",icon:"🌿",steps:["Plan ahead and prepare","Travel and camp on durable surfaces","Dispose of waste properly","Leave what you find","Minimize campfire impacts","Respect wildlife","Be considerate of other visitors"]}
@@ -750,13 +791,17 @@ const SCHEDULE = {
     {time:"7:50",ampm:"AM",title:"Camp Flag Ceremony",detail:"REQUIRED — All guests & leaders at Flag Meadow · Morning announcements",tag:"all"},
     {time:"8:00",ampm:"AM",title:"Breakfast",detail:"Dining Hall · Family-style",tag:"meal"},
     {time:"9:00",ampm:"AM",title:"Merit Badge Block 1",detail:"See Merit Badges tab for your classes",tag:"youth"},
+    {time:"9:15",ampm:"AM",title:"OLS",detail:"Outdoor Leader Skills · Adult leader training",tag:"adult"},
     {time:"10:00",ampm:"AM",title:"Merit Badge Block 2",detail:"See Merit Badges tab",tag:"youth"},
     {time:"11:00",ampm:"AM",title:"Merit Badge Block 3",detail:"See Merit Badges tab",tag:"youth"},
     {time:"11:55",ampm:"AM",title:"Steward Bell",detail:"Table stewards report to dining hall · Set tables",tag:"youth"},
     {time:"12:30",ampm:"PM",title:"Lunch",detail:"Dining Hall · Family-style",tag:"meal"},
     {time:"1:30",ampm:"PM",title:"Merit Badge Block 4",detail:"See Merit Badges tab",tag:"youth"},
     {time:"1:30",ampm:"PM",title:"Open Program & Skills of the Day",detail:"All areas open · See Skills tab for today's activities",tag:"open"},
+    {time:"1:30",ampm:"PM",title:"Handicraft Drop-In: Leatherworking",detail:"Drop-in merit badge · Handicraft area · No sign-up needed",tag:"youth"},
+    {time:"2:00",ampm:"PM",title:"Safe Swim Defense",detail:"Adult leader safety training · 2:00–3:00 PM",tag:"adult"},
     {time:"2:50",ampm:"PM",title:"Merit Badge Block 5",detail:"See Merit Badges tab",tag:"youth"},
+    {time:"4:00",ampm:"PM",title:"Scoutmaster Specifics",detail:"Adult leader training · 4:00–5:00 PM",tag:"adult"},
     {time:"4:10",ampm:"PM",title:"Merit Badge Block 6",detail:"See Merit Badges tab",tag:"youth"},
     {time:"5:50",ampm:"PM",title:"Evening Flag Ceremony",detail:"REQUIRED — All at Flag Meadow · Evening announcements",tag:"all"},
     {time:"5:30",ampm:"PM",title:"Steward Bell",detail:"Table stewards report to dining hall · Set tables",tag:"youth"},
@@ -773,13 +818,17 @@ const SCHEDULE = {
     {time:"7:50",ampm:"AM",title:"Camp Flag Ceremony",detail:"REQUIRED — All at Flag Meadow · Morning announcements",tag:"all"},
     {time:"8:00",ampm:"AM",title:"Breakfast",detail:"Dining Hall · Family-style",tag:"meal"},
     {time:"9:00",ampm:"AM",title:"Merit Badge Block 1",detail:"See Merit Badges tab",tag:"youth"},
+    {time:"9:15",ampm:"AM",title:"OLS",detail:"Outdoor Leader Skills · Adult leader training",tag:"adult"},
     {time:"10:00",ampm:"AM",title:"Merit Badge Block 2",detail:"See Merit Badges tab",tag:"youth"},
     {time:"11:00",ampm:"AM",title:"Merit Badge Block 3",detail:"See Merit Badges tab",tag:"youth"},
     {time:"11:55",ampm:"AM",title:"Steward Bell",detail:"Table stewards report to dining hall · Set tables",tag:"youth"},
     {time:"12:30",ampm:"PM",title:"Lunch",detail:"Dining Hall · Family-style",tag:"meal"},
     {time:"1:30",ampm:"PM",title:"Merit Badge Block 4",detail:"See Merit Badges tab",tag:"youth"},
     {time:"1:30",ampm:"PM",title:"Open Program & Skills of the Day",detail:"All areas open · See Skills tab · Patch Trading Festival",tag:"open"},
+    {time:"1:30",ampm:"PM",title:"Handicraft Drop-In: Art",detail:"Drop-in merit badge · Handicraft area · No sign-up needed",tag:"youth"},
+    {time:"2:00",ampm:"PM",title:"Nap on Safely",detail:"Adult leader safety training · 2:00–3:00 PM",tag:"adult"},
     {time:"2:50",ampm:"PM",title:"Merit Badge Block 5",detail:"See Merit Badges tab",tag:"youth"},
+    {time:"4:00",ampm:"PM",title:"Scoutmaster Specifics",detail:"Adult leader training · 4:00–5:00 PM",tag:"adult"},
     {time:"4:10",ampm:"PM",title:"Merit Badge Block 6",detail:"See Merit Badges tab",tag:"youth"},
     {time:"5:50",ampm:"PM",title:"Evening Flag Ceremony",detail:"REQUIRED — All at Flag Meadow",tag:"all"},
     {time:"5:30",ampm:"PM",title:"Steward Bell",detail:"Table stewards report to dining hall · Set tables",tag:"youth"},
@@ -797,18 +846,23 @@ const SCHEDULE = {
     {time:"7:50",ampm:"AM",title:"Camp Flag Ceremony",detail:"REQUIRED — All at Flag Meadow · Morning announcements",tag:"all"},
     {time:"8:00",ampm:"AM",title:"Breakfast",detail:"Dining Hall · Family-style",tag:"meal"},
     {time:"9:00",ampm:"AM",title:"Merit Badge Block 1",detail:"See Merit Badges tab",tag:"youth"},
+    {time:"9:15",ampm:"AM",title:"OLS",detail:"Outdoor Leader Skills · Adult leader training",tag:"adult"},
     {time:"10:00",ampm:"AM",title:"Merit Badge Block 2",detail:"See Merit Badges tab",tag:"youth"},
     {time:"11:00",ampm:"AM",title:"Merit Badge Block 3",detail:"See Merit Badges tab",tag:"youth"},
     {time:"11:55",ampm:"AM",title:"Steward Bell",detail:"Table stewards report to dining hall · Set tables",tag:"youth"},
     {time:"12:30",ampm:"PM",title:"Lunch",detail:"Dining Hall · Family-style",tag:"meal"},
     {time:"1:30",ampm:"PM",title:"Merit Badge Block 4",detail:"See Merit Badges tab",tag:"youth"},
     {time:"1:30",ampm:"PM",title:"Open Program & Skills of the Day",detail:"All areas open · See Skills tab · Miwok Presentation · COPE Games",tag:"open"},
+    {time:"1:30",ampm:"PM",title:"Handicraft Drop-In: Music",detail:"Drop-in merit badge · Handicraft area · No sign-up needed",tag:"youth"},
+    {time:"2:00",ampm:"PM",title:"Safety Afloat",detail:"Adult leader safety training · 2:00–3:00 PM",tag:"adult"},
     {time:"2:50",ampm:"PM",title:"Merit Badge Block 5",detail:"See Merit Badges tab",tag:"youth"},
+    {time:"4:00",ampm:"PM",title:"Scoutmaster Specifics",detail:"Adult leader training · 4:00–5:00 PM",tag:"adult"},
     {time:"4:10",ampm:"PM",title:"Merit Badge Block 6",detail:"See Merit Badges tab",tag:"youth"},
     {time:"5:50",ampm:"PM",title:"Evening Flag Ceremony",detail:"REQUIRED — All at Flag Meadow",tag:"all"},
     {time:"5:30",ampm:"PM",title:"Steward Bell",detail:"Table stewards report to dining hall · Set tables",tag:"youth"},
     {time:"6:00",ampm:"PM",title:"Dinner",detail:"Dining Hall · Family-style",tag:"meal"},
-    {time:"7:00",ampm:"PM",title:"Evening Programs",detail:"Cowboy Action Shoot (14+) · Adult Forge · Cantina Night · OA Crackerbarrel (8 PM)",tag:"all"},
+    {time:"7:00",ampm:"PM",title:"Evening Programs",detail:"Black Powder (all ages) · Cowboy Action Shoot (14+) · Adult Forge · Cantina Night",tag:"all"},
+    {time:"7:30",ampm:"PM",title:"OA Cracker Barrel",detail:"Order of the Arrow gathering",tag:"all"},
     {time:"8:30",ampm:"PM",title:"Campsite Time",detail:"Troop activities · Patrol meetings · Free time",tag:"all"},
     {time:"10:00",ampm:"PM",title:"Taps",detail:"Prepare for lights out",tag:"youth"},
     {time:"11:00",ampm:"PM",title:"Lights Out",detail:"Quiet hours begin",tag:"youth"}
@@ -820,6 +874,7 @@ const SCHEDULE = {
     {time:"7:50",ampm:"AM",title:"Camp Flag Ceremony",detail:"REQUIRED — All at Flag Meadow · Morning announcements",tag:"all"},
     {time:"8:00",ampm:"AM",title:"Breakfast",detail:"Dining Hall · Family-style",tag:"meal"},
     {time:"9:00",ampm:"AM",title:"Merit Badge Block 1",detail:"See Merit Badges tab",tag:"youth"},
+    {time:"9:15",ampm:"AM",title:"OLS",detail:"Outdoor Leader Skills · Adult leader training",tag:"adult"},
     {time:"10:00",ampm:"AM",title:"Merit Badge Block 2",detail:"See Merit Badges tab",tag:"youth"},
     {time:"11:00",ampm:"AM",title:"Merit Badge Block 3",detail:"See Merit Badges tab",tag:"youth"},
     {time:"11:55",ampm:"AM",title:"Steward Bell",detail:"Table stewards report to dining hall · Set tables",tag:"youth"},
@@ -827,12 +882,15 @@ const SCHEDULE = {
     {time:"12:30",ampm:"PM",title:"Lunch",detail:"Dining Hall · Family-style",tag:"meal"},
     {time:"1:30",ampm:"PM",title:"Merit Badge Block 4 / Clavey Overnighter Departs",detail:"Clavey backpacking/bike trip departs · No daily hike/bike today",tag:"youth"},
     {time:"1:30",ampm:"PM",title:"Open Program & Skills of the Day",detail:"All areas open · See Skills tab · Disc Golf · Fry Bread · Last day open climb & shoot",tag:"open"},
+    {time:"1:30",ampm:"PM",title:"Handicraft Drop-In: Fingerprinting",detail:"Drop-in merit badge · Handicraft area · No sign-up needed",tag:"youth"},
+    {time:"2:00",ampm:"PM",title:"Climb on Safely",detail:"Adult leader safety training · 2:00–3:00 PM",tag:"adult"},
     {time:"2:50",ampm:"PM",title:"Merit Badge Block 5",detail:"See Merit Badges tab",tag:"youth"},
+    {time:"4:00",ampm:"PM",title:"Scoutmaster Specifics",detail:"Adult leader training · 4:00–5:00 PM",tag:"adult"},
     {time:"4:10",ampm:"PM",title:"Merit Badge Block 6",detail:"See Merit Badges tab",tag:"youth"},
     {time:"5:50",ampm:"PM",title:"Evening Flag Ceremony",detail:"REQUIRED — All at Flag Meadow",tag:"all"},
     {time:"5:30",ampm:"PM",title:"Steward Bell",detail:"Table stewards report to dining hall · Set tables",tag:"youth"},
     {time:"6:00",ampm:"PM",title:"Dinner",detail:"Dining Hall · Family-style",tag:"meal"},
-    {time:"7:00",ampm:"PM",title:"Evening Programs",detail:"Black Powder (all ages) · Mop Party · Vespers (8 PM)",tag:"all"},
+    {time:"7:00",ampm:"PM",title:"Evening Programs",detail:"Open Shoot at Rifle Range · Mop Party · Vespers (8 PM)",tag:"all"},
     {time:"8:30",ampm:"PM",title:"Night Climb",detail:"Try the wall under the lights! 8:30–10 PM",tag:"youth"},
     {time:"10:00",ampm:"PM",title:"Taps",detail:"Prepare for lights out",tag:"youth"},
     {time:"11:00",ampm:"PM",title:"Lights Out",detail:"Quiet hours begin",tag:"youth"}
@@ -858,8 +916,12 @@ const SCHEDULE = {
     {time:"11:00",ampm:"PM",title:"Lights Out",detail:"Early wake-up for Saturday checkout",tag:"youth"}
   ],
   Sat:[
-    {time:"7:00",ampm:"AM",title:"Reveille",detail:"Early wake-up · Begin packing",tag:"all"},
-    {time:"8:00",ampm:"AM",title:"Breakfast",detail:"Final meal at Dining Hall",tag:"meal"},
+    {time:"7:00",ampm:"AM",title:"Reveille",detail:"Wake up · Personal hygiene · Coffee/cocoa at dining hall",tag:"all"},
+    {time:"7:00",ampm:"AM",title:"Commissioners' Coffee",detail:"Leaders: Commissioners available for questions at dining hall",tag:"staff"},
+    {time:"7:20",ampm:"AM",title:"Troop Morning Flag Ceremony",detail:"Conducted in your campsite",tag:"all"},
+    {time:"7:25",ampm:"AM",title:"Steward Bell",detail:"Table stewards report to dining hall · Set tables",tag:"youth"},
+    {time:"7:50",ampm:"AM",title:"Camp Flag Ceremony",detail:"REQUIRED — All at Flag Meadow",tag:"all"},
+    {time:"8:00",ampm:"AM",title:"Breakfast",detail:"Dining Hall · Family-style",tag:"meal"},
     {time:"8:30",ampm:"AM",title:"Campsite Cleanup & Checkout",detail:"Break down tents · Clean campsite · Staff inspection",tag:"all"},
     {time:"8:30",ampm:"AM",title:"Pick Up Advancement Reports",detail:"Get printouts from Administration · Easier to correct errors at camp!",tag:"staff"},
     {time:"10:00",ampm:"AM",title:"Departure",detail:"Load vehicles · Final farewells · Safe travels home!",tag:"all"}
@@ -1234,7 +1296,7 @@ const MENU_ODD={Sun:{Dinner:[mi("Kalua Pork"),mi("Sushi Rice",["V","GF","VG"]),m
 const MENU_EVEN={Sun:{Dinner:[mi("Kalua Pork"),mi("Sushi Rice",["V","GF","VG"]),mi("Pasta Salad",["V"]),mi("Carrots & Broccoli",["V","GF","VG"]),mi("Heart of Palm Kalua",["V","VG"]),mi("Bug Juice",["V","GF","VG"]),mi("Jello",["V"]),],},Mon:{Breakfast:[mi("French Toast Sticks",["V"]),mi("Bacon",["GF"]),mi("Hashbrowns",["V","GF","VG"]),mi("Veggie Bacon",["V"]),mi("Oatmeal",["V","VG"]),mi("Bug Juice",["V","GF","VG"]),],Lunch:[mi("BBQ Pulled Pork"),mi("Brioche Bun",["V"]),mi("Pickles & Coleslaw",["V","GF","VG"]),mi("Potato Wedges",["V","GF","VG"]),mi("BBQ Pulled Jackfruit",["V","VG"]),mi("Water",["V","GF","VG"]),],Dinner:[mi("Cajun Chicken & Sausage"),mi("Penne Pasta",["V"]),mi("Holy Trinity Veggie Melody",["V","GF","VG"]),mi("Cajun Cauliflower Steak",["V","VG"]),mi("Bug Juice",["V","GF","VG"]),mi("French Beignets",["V"]),],},Tue:{Breakfast:[mi("Scrambled Eggs",["V","GF"]),mi("Ham",["GF"]),mi("Cheddar Cheese Slices",["V","GF"]),mi("Croissant Sandwich",["V"]),mi("Tater Tots",["V","GF","VG"]),mi("Veggie Spinach, Mushrooms & Green Onion Scramble",["V"]),mi("Cream of Wheat",["V"]),mi("Bug Juice",["V","GF","VG"]),],Lunch:[mi("Kung Pao Chicken"),mi("Egg Fried Rice",["V"]),mi("Veggie Stir-Fry",["V","GF","VG"]),mi("Kung Pao Tofu",["V","GF","VG"]),mi("Water",["V","GF","VG"]),],Dinner:[mi("Beef Tacos"),mi("Cilantro-Lime Rice",["V","GF","VG"]),mi("Refried Beans",["V","GF","VG"]),mi("Flour Tortillas",["V"]),mi("Shredded Cheese",["V","GF"]),mi("Soyrizo Tacos",["V","VG"]),mi("Nopales",["V","GF","VG"]),mi("Mushrooms with Onions and Peppers",["V","GF","VG"]),mi("Bug Juice",["V","GF","VG"]),mi("Churros",["V"]),],},Wed:{Breakfast:[mi("Biscuits & Gravy",["V"]),mi("Potatoes",["V","GF","VG"]),mi("Sausage"),mi("Veggie Sausage & Mushroom w/ Onion Gravy",["V"]),mi("Grits",["V","GF"]),mi("Bug Juice",["V","GF","VG"]),],Lunch:[mi("Chicken Patty Sandwich"),mi("Lettuce, Tomato & Onion",["V","GF","VG"]),mi("Potato Chips",["V","GF","VG"]),mi("Impossible Nugget Sandwich",["V"]),mi("Water",["V","GF","VG"]),],Dinner:[mi("Pizza",["V"]),mi("Cookies",["V"]),],},Thu:{Breakfast:[mi("Scrambled Eggs",["V","GF"]),mi("Bacon",["GF"]),mi("Potatoes O'Brien",["V","GF","VG"]),mi("Veggie Bacon",["V"]),mi("Oatmeal",["V","VG"]),mi("Bug Juice",["V","GF","VG"]),],Lunch:[mi("Turkey Corn Dog"),mi("Beef Chili Beans"),mi("Potato Salad",["V","GF"]),mi("Fruit Cup",["V","GF","VG"]),mi("Baked Potato",["V","GF","VG"]),mi("Vegetarian Chili",["V","VG"]),mi("Water",["V","GF","VG"]),],Dinner:[mi("BBQ Chicken Drumsticks",["GF"]),mi("Mac & Cheese",["V"]),mi("Steamed Veggies",["V","GF","VG"]),mi("Hawaiian Rolls",["V"]),mi("Stuffed Bell Peppers",["V","VG"]),mi("Bug Juice",["V","GF","VG"]),mi("Frozen Fruit Slush",["V","GF","VG"]),],},Fri:{Breakfast:[mi("Chilaquiles (Eggs, Tortilla, Protein)",["V"]),mi("Refried Beans",["V","GF","VG"]),mi("Country Potatoes",["V","GF","VG"]),mi("Soyrizo",["V","VG"]),mi("Cream of Wheat",["V"]),mi("Bug Juice",["V","GF","VG"]),],Lunch:[mi("BBQ Hamburgers"),mi("Potato Salad",["V","GF"]),mi("Chips",["V","GF","VG"]),mi("Toppings Bar",["V","GF","VG"]),mi("Veggie Patty",["V"]),mi("Water",["V","GF","VG"]),],Dinner:[mi("Pot Roast"),mi("Mashed Potatoes",["V","GF"]),mi("Green Beans",["V","GF","VG"]),mi("Buns",["V"]),mi("Lentil Cabbage Rolls",["V","VG"]),mi("Bug Juice",["V","GF","VG"]),mi("Brownies",["V"]),],},Sat:{Breakfast:[mi("Cold Cereal",["V"]),mi("Donuts",["V"]),mi("Cinnamon Rolls",["V"]),mi("Milk",["V","GF"]),],},};
 function getMenuForSession(s){return s.menuCycle==='even'?MENU_EVEN:MENU_ODD;}
 
-// ─────────────────────────────────────────────────────────────
+// ──────────────────────���──────────────────────────────────────
 // STATE
 // ─────────────────────────────────────────────────────────────
 // Parse date as local (not UTC) to avoid timezone boundary issues
@@ -1307,7 +1369,7 @@ function renderDataAsOf(){
 }
 renderDataAsOf();
 // ── App Version Badge (bumped automatically on deploy by scripts/bump-sw.js) ──
-const APP_VERSION='chs-202606300556';
+const APP_VERSION='chs-202607120214';
 (function renderAppVersion(){const el=document.getElementById('appVersion');if(el)el.textContent=APP_VERSION;})();
 setInterval(renderDataAsOf,60000);
 window.addEventListener('online',renderDataAsOf);
@@ -1377,7 +1439,7 @@ function setupListeners(){
   // Staff
   activeListeners.push(db.collection('sessions').doc(sk).collection('staff')
     .onSnapshot(snap=>{
-      if(!snap.empty){const d=[];snap.forEach(doc=>d.push({id:doc.id,...doc.data()}));d.sort((a,b)=>(a.order==null?9999:a.order)-(b.order==null?9999:b.order));STAFF.splice(0,STAFF.length,...d);renderStaff();populateNamePicker();}
+      if(!snap.empty){const d=[];snap.forEach(doc=>d.push({id:doc.id,...doc.data()}));d.sort((a,b)=>(a.order==null?9999:a.order)-(b.order==null?9999:b.order));STAFF.splice(0,STAFF.length,...d);renderStaff();populateNamePicker();if(cachedTestimonials.length)renderTestimonialsLive(cachedTestimonials);}
       markCacheReady('staff');
     },e=>{console.log('Staff err:',e);markCacheReady('staff');}));
 
@@ -1427,7 +1489,7 @@ function setConnectionStatus(s){
   else{dot.style.background='#FFE066';lbl.textContent='Offline';if(fb)fb.textContent='Offline (cached)';}
 }
 
-// ─────────────────────────────────────────────────────────────
+// ───────────────��─────────────────────────────────────────────
 // PHOTO UPLOAD — Firebase Storage
 // ─────────────────────────────────────────────────────────────
 async function handlePhotoSelect(event){
@@ -1522,16 +1584,35 @@ async function submitTestimonial(){
 }
 
 function renderTestimonialsLive(list){
+  cachedTestimonials=list;
   const el=document.getElementById('testimonialList');
   const ct=document.getElementById('testimonialCount');
   if(ct)ct.textContent=list.length;
   if(!list.length){el.innerHTML='<div class="empty-state"><div class="empty-icon">⭐</div><div class="empty-label">No Appreciations Yet</div><div class="empty-sub">Be the first to recognize a staff member!</div></div>';return;}
-  el.innerHTML=list.map(t=>`
+  // Build photo + role lookup from STAFF
+  const staffMap={};
+  if(typeof STAFF!=='undefined'){STAFF.forEach(s=>{if(s.name)staffMap[shortName(s.name)]={photo:s.photo||'',role:s.role||''};});}
+  el.innerHTML=list.map(t=>{
+    const sn=shortName(t.name);
+    const info=staffMap[sn]||{};
+    const initials=(t.name||'?').trim().split(/\s+/).map(w=>w[0]||'').join('').slice(0,2).toUpperCase();
+    const avatarStyle='width:44px;height:44px;border-radius:22px;flex-shrink:0;overflow:hidden;';
+    const avatar=info.photo
+      ?`<div style="${avatarStyle}"><img src="${info.photo}" alt="${sn}" style="width:100%;height:100%;object-fit:cover;object-position:center top" onerror="this.parentElement.style.background='linear-gradient(135deg,var(--forest),var(--bark))';this.parentElement.innerHTML='<span style=\\'display:flex;align-items:center;justify-content:center;width:100%;height:100%;color:#fff;font-size:16px;font-weight:700\\'>${initials}</span>';"></div>`
+      :`<div style="${avatarStyle}background:linear-gradient(135deg,var(--forest),var(--bark));display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px;font-weight:700">${initials}</div>`;
+    return `
     <div class="testimonial-card">
-      <div class="testimonial-author">⭐ ${shortName(t.name)}</div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+        ${avatar}
+        <div style="min-width:0">
+          <div class="testimonial-author">⭐ ${sn}</div>
+          ${info.role?`<div style="font-size:11px;color:var(--bark);font-weight:600;margin-top:1px">${info.role}</div>`:''}
+        </div>
+      </div>
       <div class="testimonial-quote">"${t.text}"</div>
       <div class="testimonial-meta">— ${t.author||'Anonymous'}${t.troop?' · '+t.troop:''} · ${t.session||currentSession.name} · ${t.ts?new Date(t.ts.seconds*1000).toLocaleDateString():'Just now'}</div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -1750,13 +1831,14 @@ function renderSchedule(){
   const isToday=currentDay===todayKey;
   const nowMin=isToday?(pacificNow().getHours()*60+pacificNow().getMinutes()):0;
   // On today's view, hide items that ended (next item's start or +30min, whichever is less)
-  const visible=items.filter((item,i)=>{
+  const filtered=items.filter((item,i)=>{
     if(!isToday)return true;
     const startMin=parseScheduleTime(item);
     const nextStart=i<items.length-1?parseScheduleTime(items[i+1]):startMin+60;
     const endMin=Math.min(nextStart,startMin+60);
     return nowMin<endMin;
   });
+  const visible=filtered.length>0?filtered:items;
   document.getElementById('scheduleList').innerHTML=visible.map(item=>{
     const isOpen=item.tag==='open';let inline='';
     if(isOpen&&sk){inline=`<div class="open-skill-inline" onclick="openSkillModal('${sk.day}');event.stopPropagation()"><div class="open-skill-inline-label">Today's Skill</div><div class="open-skill-inline-title">${sk.icon} ${sk.title}</div><div class="open-skill-inline-detail">${sk.location} - tap for details</div></div>`;}
@@ -2027,6 +2109,7 @@ document.addEventListener('click',e=>{const m=document.getElementById('mbDetailM
 // ── Staff ──
 function shortName(full){if(!full)return'';const parts=String(full).trim().split(/\s+/);if(parts.length<2)return parts[0]||'';const last=parts[parts.length-1];return parts.slice(0,-1).join(' ')+' '+last.charAt(0).toUpperCase()+'.';}
 let staffView='org';
+let cachedTestimonials=[];
 function setStaffView(v){staffView=v;document.getElementById('staffViewOrg').classList.toggle('active',v==='org');document.getElementById('staffViewList').classList.toggle('active',v==='list');renderStaff(document.querySelector('.staff-search')?.value||'');}
 const AREA_ICONS={'Management':'⭐','Solo Campers':'🧭','Excursions':'🥾','Handicraft':'🎨','Climbing':'🧗','Trading Post':'🏪','Nature':'🌲','Trail to Eagle':'🦅','Aquatics':'🏊','FoxFire':'🔥','Scoutcraft':'⛺','Welding':'🔧','Shotgun':'🎯','Rifle':'🎯','Archery':'🏹','Pinecrest':'⛵','Observatory':'🔭','Camp-Wide':'📣','Adult Education':'🎓','Kitchen':'🍳','Maintenance':'🛠️'};
 const AREA_ORDER=['Management','Solo Campers','Aquatics','Rifle','Archery','Shotgun','Climbing','FoxFire','Handicraft','Nature','Scoutcraft','Welding','Trail to Eagle','Excursions','Pinecrest','Observatory','Adult Education','Trading Post','Kitchen','Maintenance','Camp-Wide'];
@@ -2035,17 +2118,17 @@ function renderStaffOrg(filter){
   const q=(filter||'').toLowerCase().trim();
   const all=q?STAFF.filter(s=>[s.name,s.role,s.area].some(v=>(v||'').toLowerCase().includes(q))):STAFF;
   // Group by area
-  const byArea={};all.forEach(s=>{(byArea[s.area]=byArea[s.area]||[]).push(s);});
+  const byArea={};all.forEach(s=>{if(!s.area)return;(byArea[s.area]=byArea[s.area]||[]).push(s);});
   // Leadership pinned at top
   const leadership=(byArea['Management']||[]);
   let html='';
   if(leadership.length){
     html+='<div class="org-leadership"><div class="org-leadership-title">⭐ Camp Leadership</div><div class="org-leadership-grid">';
-    html+=leadership.map(s=>`<div class="org-leader"><div class="org-leader-avatar">${s.i||shortName(s.name).split(' ').map(w=>w[0]).join('').slice(0,2)}</div><div style="min-width:0"><div class="org-leader-name">${shortName(s.name)}</div><div class="org-leader-role">${s.role}</div></div></div>`).join('');
+    html+=leadership.map(s=>`<div class="org-leader"><div class="org-leader-avatar">${s.i||shortName(s.name).split(' ').map(w=>w[0]).join('').slice(0,2)}</div><div style="min-width:0"><div class="org-leader-name">${shortName(s.name)}</div><div class="org-leader-role">${s.role||''}</div></div></div>`).join('');
     html+='</div></div>';
   }
   // Each area as a collapsible card
-  const areas=Object.keys(byArea).filter(a=>a!=='Management').sort((a,b)=>{const ai=AREA_ORDER.indexOf(a),bi=AREA_ORDER.indexOf(b);return (ai<0?999:ai)-(bi<0?999:bi);});
+  const areas=Object.keys(byArea).filter(a=>a&&a!=='Management').sort((a,b)=>{const ai=AREA_ORDER.indexOf(a),bi=AREA_ORDER.indexOf(b);return (ai<0?999:ai)-(bi<0?999:bi);});
   areas.forEach(area=>{
     const members=byArea[area];
     const directors=members.filter(s=>isDirector(s.role,s));
@@ -2054,12 +2137,12 @@ function renderStaffOrg(filter){
     const collapsed=q?'':'';
     html+=`<div class="org-area ${collapsed}" data-area="${area}"><div class="org-area-header" onclick="this.parentElement.classList.toggle('collapsed')"><div class="org-area-name"><span class="org-area-icon">${icon}</span>${area}</div><div style="display:flex;align-items:center;gap:10px"><span class="org-area-count">${members.length}</span><span class="org-area-chev">▼</span></div></div><div class="org-area-body">`;
     directors.forEach(s=>{
-      html+=`<div class="org-director"><div class="org-mem-avatar">${s.i||shortName(s.name).split(' ').map(w=>w[0]).join('').slice(0,2)}</div><div class="org-mem-info"><div class="org-mem-name">${shortName(s.name)}</div><div class="org-mem-role">${s.role}</div></div><span class="org-director-badge">Lead</span></div>`;
+      html+=`<div class="org-director"><div class="org-mem-avatar">${s.i||shortName(s.name).split(' ').map(w=>w[0]).join('').slice(0,2)}</div><div class="org-mem-info"><div class="org-mem-name">${shortName(s.name)}</div><div class="org-mem-role">${s.role||''}</div></div><span class="org-director-badge">Lead</span></div>`;
     });
     if(team.length){
       html+='<div class="org-team">';
       team.forEach(s=>{
-        html+=`<div class="org-member"><div class="org-mem-avatar">${s.i||shortName(s.name).split(' ').map(w=>w[0]).join('').slice(0,2)}</div><div class="org-mem-info"><div class="org-mem-name">${shortName(s.name)}</div><div class="org-mem-role">${s.role}</div></div></div>`;
+        html+=`<div class="org-member"><div class="org-mem-avatar">${s.i||shortName(s.name).split(' ').map(w=>w[0]).join('').slice(0,2)}</div><div class="org-mem-info"><div class="org-mem-name">${shortName(s.name)}</div><div class="org-mem-role">${s.role||''}</div></div></div>`;
       });
       html+='</div>';
     }
@@ -2301,26 +2384,31 @@ function _sagaFaqs(c){
 }
 function _renderStaffListOriginal(filter){
   const q=(filter||'').toLowerCase();
-  document.getElementById('staffList').innerHTML=STAFF.filter(s=>[s.name,s.role,s.area].some(v=>v.toLowerCase().includes(q))).map(s=>`<div class="staff-card"><div class="staff-avatar">${s.i||(s.name||'?').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase()}</div><div class="staff-info"><div class="staff-name">${shortName(s.name)}</div><div class="staff-role">${s.role}</div><div class="staff-area">${s.area}</div></div></div>`).join('');
+  document.getElementById('staffList').innerHTML=STAFF.filter(s=>[s.name,s.role,s.area].some(v=>(v||'').toLowerCase().includes(q))).map(s=>`<div class="staff-card"><div class="staff-avatar">${s.i||(s.name||'?').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase()}</div><div class="staff-info"><div class="staff-name">${shortName(s.name)}</div><div class="staff-role">${s.role||''}</div><div class="staff-area">${s.area||''}</div></div></div>`).join('');
 }
 function filterStaff(v){renderStaff(v);}
 function populateNamePicker(){
-  // Staff name dropdown — grouped by area
+  // Staff name dropdown — grouped by area.
+  // Rebuild every time so staff that load in after the first pass
+  // (e.g. late-syncing medics) always appear. Only skip while STAFF is empty.
   const sel=document.getElementById('staffPickerName');
-  if(sel.options.length<=1){
+  if(typeof STAFF!=='undefined'&&STAFF.length){
+    const prev=sel.value;
+    sel.querySelectorAll('optgroup').forEach(g=>g.remove());
     const areas={};
-    STAFF.forEach(s=>{if(!areas[s.area])areas[s.area]=[];areas[s.area].push(s);});
+    STAFF.forEach(s=>{if(!s.name)return;if(!areas[s.area])areas[s.area]=[];areas[s.area].push(s);});
     Object.keys(areas).sort(byName()).forEach(area=>{
       const grp=document.createElement('optgroup');
       grp.label=area;
       areas[area].slice().sort(byName('name')).forEach(s=>{
         const o=document.createElement('option');
         o.value=shortName(s.name);
-        o.textContent=shortName(s.name)+' — '+s.role;
+        o.textContent=shortName(s.name)+(s.role?' — '+s.role:'');
         grp.appendChild(o);
       });
       sel.appendChild(grp);
     });
+    if(prev&&[...sel.options].some(o=>o.value===prev))sel.value=prev;
   }
   // Troop dropdown is populated from roster listener (see setupListeners)
   populateTroopPicker();
@@ -2725,7 +2813,13 @@ function renderWeather(device){
 }
 </script>
 
-<!-- ── Staff Headshot Patch ───────────────────────────────────────────────── -->
+<!-- ════════════════════════════════════════════════════════════════════════════
+     ██  DO NOT EDIT OR OVERWRITE BELOW THIS LINE  ██
+     Staff Headshot Patch — appended after all other content.
+     This block MUST remain at the end of the file, just before </body></html>.
+     Editing index.html should STOP before this comment.
+     Any write/append to index.html must preserve this entire block intact.
+════════════════════════════════════════════════════════════════════════════ -->
 <style>
   .org-leader-avatar img, .org-mem-avatar img, .staff-avatar img {
     width: 100%; height: 100%; object-fit: cover;
@@ -2736,9 +2830,123 @@ function renderWeather(device){
   }
   #hs-lightbox {
     display: none; position: fixed; inset: 0; z-index: 9999;
-    background: rgba(0,0,0,0.75); align-items: center;
+    background: rgba(0,0,0,0.82); align-items: center;
     justify-content: center; flex-direction: column; gap: 14px;
   }
   #hs-lightbox.open { display: flex; }
   #hs-lightbox img {
-    width: min(320px, 80vw); height: min(320px, 80vw); border-radius: 
+    width: min(320px, 80vw); height: min(320px, 80vw); border-radius: 12px;
+    object-fit: cover; object-position: center top; box-shadow: 0 4px 24px rgba(0,0,0,0.5);
+  }
+  #hs-lightbox-name {
+    color: #fff; font-size: 16px; font-weight: 700; letter-spacing: 0.3px;
+  }
+  #hs-lightbox-role {
+    color: rgba(255,255,255,0.75); font-size: 13px; margin-top: 2px;
+  }
+</style>
+
+<div id="hs-lightbox" onclick="document.getElementById('hs-lightbox').classList.remove('open')">
+  <img id="hs-lightbox-img" src="" alt="">
+  <div id="hs-lightbox-name"></div>
+  <div id="hs-lightbox-role"></div>
+</div>
+
+<script>
+(function() {
+  function abbrevName(fullName) {
+    if (!fullName) return '';
+    const parts = fullName.trim().split(/\s+/);
+    if (parts.length < 2) return fullName;
+    const last = parts[parts.length - 1];
+    const lastAbbrev = last.endsWith('.') ? last : last[0] + '.';
+    return parts[0] + ' ' + lastAbbrev;
+  }
+
+  function openLightbox(url, name, role) {
+    const lb = document.getElementById('hs-lightbox');
+    document.getElementById('hs-lightbox-img').src = url;
+    document.getElementById('hs-lightbox-name').textContent = name || '';
+    document.getElementById('hs-lightbox-role').textContent = role || '';
+    lb.classList.add('open');
+  }
+
+  function applyPhotos() {
+    if (typeof STAFF === 'undefined') return;
+
+    const photoByName = {};
+    const photoByInitials = {};
+    STAFF.forEach(s => {
+      if (!s.photo) return;
+      if (s.name) photoByName[abbrevName(s.name)] = { url: s.photo, name: s.name, role: s.role || '' };
+      if (s.i)    photoByInitials[s.i] = { url: s.photo, name: s.name, role: s.role || '' };
+    });
+
+    const nameSelectors = {
+      'org-leader-avatar': '.org-leader-name',
+      'org-mem-avatar':    '.org-mem-name',
+      'staff-avatar':      '.staff-name',
+    };
+
+    document.querySelectorAll('.org-leader-avatar, .org-mem-avatar, .staff-avatar').forEach(el => {
+      if (el.querySelector('img')) return;
+
+      let entry = null;
+      for (const [cls, nameSel] of Object.entries(nameSelectors)) {
+        if (el.classList.contains(cls)) {
+          const nameEl = el.closest('.' + cls.replace('-avatar', ''))?.querySelector(nameSel)
+                      ?? el.parentElement?.querySelector(nameSel);
+          if (nameEl) entry = photoByName[nameEl.textContent.trim()];
+          break;
+        }
+      }
+      if (!entry) {
+        const initials = el.textContent.trim();
+        entry = photoByInitials[initials];
+      }
+      if (!entry) return;
+
+      const initials = el.textContent.trim();
+      el.classList.add('has-photo');
+      const img = document.createElement('img');
+      img.src = entry.url;
+      img.alt = entry.name || initials;
+      img.onclick = function(e) {
+        e.stopPropagation();
+        openLightbox(entry.url, entry.name, entry.role);
+      };
+      img.onerror = function() {
+        el.classList.remove('has-photo');
+        el.innerHTML = initials;
+      };
+      el.innerHTML = '';
+      el.appendChild(img);
+    });
+  }
+
+  function patchRenderFn(name) {
+    if (typeof window[name] !== 'function') return;
+    const original = window[name];
+    window[name] = function(...args) {
+      const result = original.apply(this, args);
+      requestAnimationFrame(applyPhotos);
+      return result;
+    };
+  }
+
+  function init() {
+    patchRenderFn('renderStaff');
+    patchRenderFn('renderStaffOrg');
+    patchRenderFn('filterStaff');
+    applyPhotos();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    setTimeout(init, 0);
+  }
+})();
+</script>
+</body>
+</html>
